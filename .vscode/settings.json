@@ -1,0 +1,15 @@
+{
+    "java.project.sourcePaths": [
+        "WEB-INF/src"
+    ],
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "/home/adri/Bureau/Programmes/DevWeb/apache-tomcat-9.0.71/lib/jackson-annotations-2.14.1.jar",
+        "/home/adri/Bureau/Programmes/DevWeb/apache-tomcat-9.0.71/lib/jackson-core-2.14.1.jar",
+        "/home/adri/Bureau/Programmes/DevWeb/apache-tomcat-9.0.71/lib/jackson-databind-2.14.1.jar",
+        "/home/adri/Bureau/Programmes/DevWeb/apache-tomcat-9.0.71/lib/jackson-dataformat-xml-2.14.1.jar",
+        "/home/adri/Bureau/Programmes/DevWeb/apache-tomcat-9.0.71/lib/postgresql-42.5.1.jar",
+        "/home/adri/Bureau/Programmes/DevWeb/apache-tomcat-9.0.71/lib/servlet-api.jar"
+    ],
+    "java.project.outputPath": "WEB-INF/classes"
+}
