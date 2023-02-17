@@ -1,6 +1,5 @@
 .vscode/
 *.class
-./WEB-INF/classes/*
 .classpath
 .project
 /.metadata/
