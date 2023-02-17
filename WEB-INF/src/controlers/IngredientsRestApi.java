@@ -43,7 +43,7 @@ public class IngredientsRestApi extends HttpServlet {
         }
 
         String id = pathInfoSplits[1];
-        Ingredient ingredient = ingDAO.findById(id);
+        Ingredient ingredient = ingDAO.findById(Integer.parseInt(id));
         if (ingredient == null) {
             res.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
@@ -94,7 +94,7 @@ public class IngredientsRestApi extends HttpServlet {
         }
 
         String id = pathInfoSplits[1];
-        if (ingDAO.delete(id)) {
+        if (ingDAO.delete(Integer.parseInt(id))) {
             res.sendError(HttpServletResponse.SC_OK);
         } else {
             res.sendError(HttpServletResponse.SC_NOT_FOUND);      

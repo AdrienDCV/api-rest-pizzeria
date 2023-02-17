@@ -35,7 +35,7 @@ public class IngredientDAO {
             ResultSet rs = stmt.executeQuery("SELECT * FROM ingredients");
 
             while(rs.next()){
-                ingredientsList.add(new Ingredient(rs.getInt("id"), rs.getString("name"), rs.getDouble("price")));
+               ingredientsList.add(this.findById(rs.getInt("id")));
             }
         }
         catch (Exception e) {
@@ -54,7 +54,7 @@ public class IngredientDAO {
 
     } 
 
-    public Ingredient findById(String id) {
+    public Ingredient findById(int id) {
         Ingredient ingredient = null;
 
         try {
@@ -62,10 +62,10 @@ public class IngredientDAO {
             this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
 
             PreparedStatement pstmtSelect = con.prepareStatement("SELECT * FROM ingredients WHERE id =?");
-            pstmtSelect.setInt(1, Integer.parseInt(id));
+            pstmtSelect.setInt(1, id);
             ResultSet rs = pstmtSelect.executeQuery();
             if (rs.next()) {
-                ingredient = new Ingredient(Integer.parseInt(id), rs.getString("name"), rs.getDouble("price"));
+                ingredient = new Ingredient(id, rs.getString("name"), rs.getDouble("price"));
             }
         }
         catch (Exception e) {
@@ -82,7 +82,7 @@ public class IngredientDAO {
         return ingredient;
     }
 
-    public boolean delete(String id) {
+    public boolean delete(int id) {
         boolean deleted = false;
 
         try {
@@ -91,7 +91,7 @@ public class IngredientDAO {
                 this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
 
                 PreparedStatement pstmtDelete = con.prepareStatement("DELETE FROM ingredients WHERE id=?");
-                pstmtDelete.setInt(1, Integer.parseInt(id));
+                pstmtDelete.setInt(1, id);
                 pstmtDelete.executeUpdate();
                 deleted = true;
             }
@@ -114,7 +114,7 @@ public class IngredientDAO {
         boolean saved = false;
 
         try {
-            if (this.findById(Integer.toString(ingredient.getId())) == null) {
+            if (this.findById(ingredient.getId()) == null) {
                 Class.forName("org.postgresql.Driver");
                 this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
 

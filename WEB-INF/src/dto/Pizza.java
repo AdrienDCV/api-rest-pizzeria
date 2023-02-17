@@ -1,5 +1,7 @@
 package dto;
 
+import java.util.List;
+
 public class Pizza {
     
     // attributes
@@ -7,12 +9,12 @@ public class Pizza {
     private String name;
     private TypePate typePate;
     private double prixBase;
-    private int[] ingredients; 
+    private List<Integer> ingredients; 
 
     // constructor(s)
     public Pizza() {}
 
-    public Pizza(int id, String name, TypePate typePate, double prixBase, int[] ingredients) {
+    public Pizza(int id, String name, TypePate typePate, double prixBase, List<Integer> ingredients) {
         this.id = id;
         this.name = name;
         this.typePate = typePate;
@@ -53,11 +55,11 @@ public class Pizza {
         this.prixBase = prixBase;
     }
 
-    public int[] getIngredients() {
+    public List<Integer> getIngredients() {
         return ingredients;
     }
 
-    public void setIngredients(int[] ingredients) {
+    public void setIngredients(List<Integer> ingredients) {
         this.ingredients = ingredients;
     }
 

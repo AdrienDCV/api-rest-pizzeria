@@ -33,11 +33,19 @@ public class PizzaDAO {
             this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
 
             Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM pizza");
+            ResultSet rsBasePizza = stmt.executeQuery("SELECT * FROM basepizza");
 
-            while(rs.next()){
-                pizzasList.add(new Pizza(rs.getInt("id"), rs.getString("name"), TypePate.get(rs.getString("typePate")), rs.getFloat("prixBase"), null));
+            while(rsBasePizza.next()){
+                pizzasList.add(new Pizza(rsBasePizza.getInt("id"), rsBasePizza.getString("name"), TypePate.get(rsBasePizza.getString("typePate")), rsBasePizza.getFloat("prixBase"), null));
             }
+
+            for (Pizza pizza : pizzasList) {
+                ResultSet rsIngredients = stmt.executeQuery("SELECT idingredient FROM pizza WHERE id=" + pizza.getId());
+                if (rsIngredients.next()) {
+                    pizza.getIngredients().add(rsIngredients.getInt("idingredient"));
+                }   
+            }
+
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -122,19 +130,19 @@ public class PizzaDAO {
                 this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
 
                 // ajoute basepizza
-                PreparedStatement pstmtInsertPizza = con.prepareStatement("INSERT INTO basepizza VALUES(?,?,?)");
+                PreparedStatement pstmtInsertPizza = con.prepareStatement("INSERT INTO basepizza VALUES(?,?,?,?)");
                 pstmtInsertPizza.setInt(1, pizza.getId());
                 pstmtInsertPizza.setString(2, pizza.getName());
-                pstmtInsertPizza.setDouble(3, pizza.getPrixBase());
+                pstmtInsertPizza.setString(3, pizza.getTypePate().getLabel());
+                pstmtInsertPizza.setDouble(4, pizza.getPrixBase());
                 pstmtInsertPizza.executeUpdate();
 
                 // ajout type pâte + ingrédients 
-                PreparedStatement pstmtInsertIngredients = con.prepareStatement("INSERT INTO pizza VALUES(?,?,?)");
-                int[] ingredientsIDsTab =  pizza.getIngredients();
+                PreparedStatement pstmtInsertIngredients = con.prepareStatement("INSERT INTO pizza VALUES(?,?)");
+                List<Integer> ingredientsIDsTab =  pizza.getIngredients();
                 pstmtInsertIngredients.setInt(1, pizza.getId());
-                pstmtInsertIngredients.setString(3, pizza.getTypePate().getLabel());
-                for (int i = 0; i < ingredientsIDsTab.length; i++) {
-                    pstmtInsertIngredients.setInt(2,ingredientsIDsTab[i]);
+                for (int i = 0; i < ingredientsIDsTab.size(); i++) {
+                    pstmtInsertIngredients.setInt(2,ingredientsIDsTab.get(i));
                     pstmtInsertIngredients.addBatch();
                 }
                 int[] inserts = pstmtInsertIngredients.executeBatch();
