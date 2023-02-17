@@ -33,7 +33,7 @@ public class PizzaDAO {
             this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
 
             Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM pizzas");
+            ResultSet rs = stmt.executeQuery("SELECT * FROM pizza");
 
             while(rs.next()){
                 pizzasList.add(new Pizza(rs.getInt("id"), rs.getString("name"), TypePate.get(rs.getString("typePate")), rs.getFloat("prixBase"), null));
@@ -62,7 +62,7 @@ public class PizzaDAO {
             Class.forName("org.postgresql.Driver");
             this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
 
-            PreparedStatement pstmtSelect = con.prepareStatement("SELECT * FROM pizzas WHERE id =?");
+            PreparedStatement pstmtSelect = con.prepareStatement("SELECT * FROM pizza WHERE idbasepizza =?");
             pstmtSelect.setInt(1, Integer.parseInt(id));
             ResultSet rs = pstmtSelect.executeQuery();
             if (rs.next()) {
@@ -93,7 +93,7 @@ public class PizzaDAO {
                 Class.forName("org.postgresql.Driver");
                 this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
 
-                PreparedStatement pstmtDelete = con.prepareStatement("DELETE FROM pizzas WHERE id=?");
+                PreparedStatement pstmtDelete = con.prepareStatement("DELETE FROM pizza WHERE id=?");
                 pstmtDelete.setInt(1, Integer.parseInt(id));
                 pstmtDelete.executeUpdate();
                 deleted = true;
@@ -121,18 +121,26 @@ public class PizzaDAO {
                 Class.forName("org.postgresql.Driver");
                 this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
 
-                PreparedStatement pstmtInsert = con.prepareStatement("INSERT INTO pizzas VALUES(?,?,?,?,?)");
-                pstmtInsert.setInt(1, pizza.getId());
-                pstmtInsert.setString(2, pizza.getName());
-                pstmtInsert.setString(3, pizza.getTypePate().getLabel());
-                pstmtInsert.setDouble(4, pizza.getPrixBase());
-                int[] ingredientsIDsTab =  pizza.getIngredients();
-                for (int i = 0; i < ingredientsIDsTab.length; i++) {
-                    pstmtInsert.setInt(5,ingredientsIDsTab[i]);
-                }
+                // ajoute basepizza
+                PreparedStatement pstmtInsertPizza = con.prepareStatement("INSERT INTO basepizza VALUES(?,?,?)");
+                pstmtInsertPizza.setInt(1, pizza.getId());
+                pstmtInsertPizza.setString(2, pizza.getName());
+                pstmtInsertPizza.setDouble(3, pizza.getPrixBase());
+                pstmtInsertPizza.executeUpdate();
 
-                pstmtInsert.executeUpdate();
-                saved = true;
+                // ajout type pâte + ingrédients 
+                PreparedStatement pstmtInsertIngredients = con.prepareStatement("INSERT INTO pizza VALUES(?,?,?)");
+                int[] ingredientsIDsTab =  pizza.getIngredients();
+                pstmtInsertIngredients.setInt(1, pizza.getId());
+                pstmtInsertIngredients.setString(3, pizza.getTypePate().getLabel());
+                for (int i = 0; i < ingredientsIDsTab.length; i++) {
+                    pstmtInsertIngredients.setInt(2,ingredientsIDsTab[i]);
+                    pstmtInsertIngredients.addBatch();
+                }
+                int[] inserts = pstmtInsertIngredients.executeBatch();
+                if (inserts != null) {
+                    saved = true;
+                }         
             }
         }
         catch (Exception e) {
