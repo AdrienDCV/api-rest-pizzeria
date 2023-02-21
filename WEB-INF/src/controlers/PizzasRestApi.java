@@ -79,4 +79,27 @@ public class PizzasRestApi extends HttpServlet{
 
     }
 
+    public void doDelete (HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+
+        res.setContentType("application/json;charset=UTF-8");
+        PizzaDAO pizzaDAO = new PizzaDAO();
+
+        String pathInfo = req.getPathInfo();
+        String[] pathInfoSplits = pathInfo.split("/");
+        if (pathInfoSplits.length != 2) {
+            res.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        // DELETE id
+        String id = pathInfoSplits[1];
+        if (pizzaDAO.delete(Integer.parseInt(id))) {
+            res.sendError(HttpServletResponse.SC_OK);
+        } else {
+            res.sendError(HttpServletResponse.SC_NOT_FOUND);      
+        }
+
+
+    }
+
 }

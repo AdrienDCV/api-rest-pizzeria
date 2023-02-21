@@ -84,7 +84,6 @@ public class PizzaDAO {
             ResultSet rsIngredients = stmt.executeQuery("SELECT idingredient FROM pizza WHERE idbasepizza=" + pizza.getId());
             List<Integer> ingredientsList = pizza.getIngredients();
             while (rsIngredients.next()) {
-                System.out.println("passe par là");
                 ingredientsList.add(rsIngredients.getInt("idingredient"));          
             }   
             pizza.setIngredients(ingredientsList);
@@ -105,17 +104,21 @@ public class PizzaDAO {
 
     public boolean delete(int id) {
         boolean deleted = false;
-        System.out.println(id);
 
         try {
             if (this.findById(id) != null) {
-                System.out.println("passe par là");
                 Class.forName("org.postgresql.Driver");
                 this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
 
-                PreparedStatement pstmtDelete = con.prepareStatement("DELETE FROM pizza WHERE id=?");
-                pstmtDelete.setInt(1, id);
-                pstmtDelete.executeUpdate();
+                
+                PreparedStatement pstmtDeletePizza = con.prepareStatement("DELETE FROM pizza WHERE idbasepizza=?");
+                pstmtDeletePizza.setInt(1, id);
+                pstmtDeletePizza.executeUpdate();
+                
+                PreparedStatement pstmtDeleteBasePizza = con.prepareStatement("DELETE FROM basepizza WHERE id=?");
+                pstmtDeleteBasePizza.setInt(1, id);
+                pstmtDeleteBasePizza.executeUpdate();
+
                 deleted = true;
             }
         }
