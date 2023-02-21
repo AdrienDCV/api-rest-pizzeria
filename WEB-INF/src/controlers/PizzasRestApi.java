@@ -45,14 +45,17 @@ public class PizzasRestApi extends HttpServlet{
             return;
         }
 
+        // GET id
         if (pathInfoSplits.length == 2) {
             String jsonString = objMapper.writeValueAsString(pizza);
             out.print(jsonString);
             return;
         }
 
+        // GET prix final
         if (pathInfoSplits.length == 3) {
-            String jsonString = objMapper.writeValueAsString(pizza.getName());
+            double finalPrice = pizzaDAO.getFinalPrice(pizza);
+            String jsonString = objMapper.writeValueAsString(finalPrice);
             out.print(jsonString);
             return;
         }

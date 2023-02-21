@@ -49,12 +49,14 @@ public class IngredientsRestApi extends HttpServlet {
             return;
         }
 
+        // GET id
         if (pathInfoSplits.length == 2) {
             String jsonString = objMapper.writeValueAsString(ingredient);
             out.print(jsonString);
             return;
         }
 
+        // GET name
         if (pathInfoSplits.length == 3) {
             String jsonString = objMapper.writeValueAsString(ingredient.getName());
             out.print(jsonString);

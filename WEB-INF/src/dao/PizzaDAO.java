@@ -177,4 +177,43 @@ public class PizzaDAO {
         return saved;
     }
 
+    public double getFinalPrice(Pizza pizza) {
+        double finalPrice = 0;
+
+
+        try {
+            Class.forName("org.postgresql.Driver");
+            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+
+            PreparedStatement pstmtSelectPriceBasePizza = con.prepareStatement("SELECT prixbase FROM basepizza WHERE id=?");
+            pstmtSelectPriceBasePizza.setInt(1, pizza.getId());
+            ResultSet rsPriceBasePizza = pstmtSelectPriceBasePizza.executeQuery();
+
+            if(rsPriceBasePizza.next()){
+              finalPrice = rsPriceBasePizza.getFloat("prixbase");
+            }
+
+            Statement stmtPriceIngredients = con.createStatement();
+            for (Integer idingredients : pizza.getIngredients()) {
+                ResultSet rsPriceIngredients = stmtPriceIngredients.executeQuery("SELECT price FROM ingredients WHERE id=" + idingredients);
+                if (rsPriceIngredients.next()) {
+                    finalPrice += rsPriceIngredients.getFloat("price");
+                }
+            }
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+             try {
+            con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return finalPrice;
+    }
+
 }
