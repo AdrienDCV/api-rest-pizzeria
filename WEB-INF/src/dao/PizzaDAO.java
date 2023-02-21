@@ -102,7 +102,7 @@ public class PizzaDAO {
         return pizza;
     }
 
-    public boolean delete(int id) {
+    public boolean deletePizza(int id) {
         boolean deleted = false;
 
         try {
@@ -136,7 +136,41 @@ public class PizzaDAO {
         return deleted;
     }
 
-    public boolean save(Pizza pizza) {
+    public boolean deleteIngredient(int idPizza, int idIngredient) {
+        boolean deleted = false;
+
+        try {
+            Pizza pizza = this.findById(idPizza);
+            if (pizza != null) {
+                Class.forName("org.postgresql.Driver");
+                this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+
+                PreparedStatement pstmtDeleteIngrediStatement = con.prepareStatement("DELETE FROM pizza WHERE idbasepizza=? AND idingredient=?");
+                pstmtDeleteIngrediStatement.setInt(1, pizza.getId());
+                pstmtDeleteIngrediStatement.setInt(2, idIngredient);
+                pstmtDeleteIngrediStatement.executeUpdate();
+
+                pizza.getIngredients().remove(idIngredient);
+
+                deleted = true;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return deleted;
+    }
+
+
+    public boolean savePizza(Pizza pizza) {
         boolean saved = false;
 
         try {
@@ -144,7 +178,7 @@ public class PizzaDAO {
                 Class.forName("org.postgresql.Driver");
                 this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
 
-                // ajoute basepizza
+                // ajout basepizza
                 PreparedStatement pstmtInsertPizza = con.prepareStatement("INSERT INTO basepizza VALUES(?,?,?,?)");
                 pstmtInsertPizza.setInt(1, pizza.getId());
                 pstmtInsertPizza.setString(2, pizza.getName());
@@ -165,6 +199,48 @@ public class PizzaDAO {
                     saved = true;
                 }         
             }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return saved;
+    }
+
+    public boolean addIngredient(int idPizza, int idIngredient) {
+        boolean saved = false;
+
+        try {
+            Class.forName("org.postgresql.Driver");
+            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+            
+            if (this.findById(idPizza) != null) {
+                Pizza pizza = this.findById(idPizza);
+                Statement stmtSelect = con.createStatement();
+                ResultSet rs = stmtSelect.executeQuery("SELECT * FROM pizza WHERE idbasepizza="+ pizza.getId() + " AND idingredient" + idIngredient);
+                
+                if (!rs.next()) {
+                    System.out.println("là !!!!!!!!!!!!!");
+                    Class.forName("org.postgresql.Driver");
+                    this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+    
+                    PreparedStatement pstmtInsertIngredients = con.prepareStatement("INSERT INTO pizza VALUES(?, ?)");
+                    pstmtInsertIngredients.setInt(1, pizza.getId());
+                    pstmtInsertIngredients.setInt(2, idIngredient);
+                    pstmtInsertIngredients.executeUpdate();
+    
+                    pizza.getIngredients().add(idIngredient);
+    
+                    saved = true;
+                }
+            } 
         }
         catch (Exception e) {
             e.printStackTrace();

@@ -53,7 +53,7 @@ public class PizzasRestApi extends HttpServlet{
         }
 
         // GET prix final
-        if (pathInfoSplits.length == 3) {
+        if (pathInfoSplits.length == 3 && pathInfoSplits[3].equals("prixfinal")) {
             double finalPrice = pizzaDAO.getFinalPrice(pizza);
             String jsonString = objMapper.writeValueAsString(finalPrice);
             out.print(jsonString);
@@ -69,14 +69,30 @@ public class PizzasRestApi extends HttpServlet{
         ObjectMapper objMapper = new ObjectMapper();
         PizzaDAO pizzaDAO = new PizzaDAO();
 
-        String pizzaInfos = new BufferedReader(new InputStreamReader(req.getInputStream())).readLine();
-        Pizza pizza = objMapper.readValue(pizzaInfos, Pizza.class);
-        if (pizzaDAO.save(pizza)) {
-            res.sendError(HttpServletResponse.SC_CREATED);  
-        } else {
-            res.sendError(HttpServletResponse.SC_CONFLICT);
-        }
+        String pathInfo = req.getPathInfo();
+        String[] pathInfoSplits = pathInfo.split("/");
 
+        if (pathInfoSplits.length == 2) {
+            String idPizza = pathInfoSplits[1];
+            String ingredientInfo = new BufferedReader(new InputStreamReader(req.getInputStream())).readLine();
+            String idIngredient = objMapper.readValue(ingredientInfo, String.class);
+            if (pizzaDAO.addIngredient(Integer.parseInt(idPizza), Integer.parseInt(idIngredient))) {
+                res.sendError(HttpServletResponse.SC_CREATED);  
+            } else {
+                res.sendError(HttpServletResponse.SC_CONFLICT);
+            }
+            return;
+        }
+        else {
+            String pizzaInfos = new BufferedReader(new InputStreamReader(req.getInputStream())).readLine();
+            Pizza pizza = objMapper.readValue(pizzaInfos, Pizza.class);
+            if (pizzaDAO.savePizza(pizza)) {
+                res.sendError(HttpServletResponse.SC_CREATED);  
+            } else {
+                res.sendError(HttpServletResponse.SC_CONFLICT);
+            }
+            return;
+        }
     }
 
     public void doDelete (HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
@@ -86,20 +102,28 @@ public class PizzasRestApi extends HttpServlet{
 
         String pathInfo = req.getPathInfo();
         String[] pathInfoSplits = pathInfo.split("/");
-        if (pathInfoSplits.length != 2) {
+        if (pathInfoSplits.length > 3) {
             res.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
         // DELETE id
-        String id = pathInfoSplits[1];
-        if (pizzaDAO.delete(Integer.parseInt(id))) {
-            res.sendError(HttpServletResponse.SC_OK);
-        } else {
-            res.sendError(HttpServletResponse.SC_NOT_FOUND);      
+        if (pathInfoSplits.length == 2) {
+            String id = pathInfoSplits[1];
+            if (pizzaDAO.deletePizza(Integer.parseInt(id))) {
+                res.sendError(HttpServletResponse.SC_OK);
+            } else {
+                res.sendError(HttpServletResponse.SC_NOT_FOUND);      
+            }
         }
 
-
+        if (pathInfoSplits.length == 3) {
+            String idPizza = pathInfoSplits[1];
+            String idIngredient = pathInfoSplits[2];
+            pizzaDAO.deleteIngredient(Integer.parseInt(idPizza), Integer.parseInt(idIngredient));
+        }
+        
+        return;
     }
 
 }
