@@ -40,10 +40,13 @@ public class PizzaDAO {
             }
 
             for (Pizza pizza : pizzasList) {
-                ResultSet rsIngredients = stmt.executeQuery("SELECT idingredient FROM pizza WHERE id=" + pizza.getId());
-                if (rsIngredients.next()) {
-                    pizza.getIngredients().add(rsIngredients.getInt("idingredient"));
+                ResultSet rsIngredients = stmt.executeQuery("SELECT idingredient FROM pizza WHERE idbasepizza=" + pizza.getId());
+                List<Integer> ingredientsList = new ArrayList<>();
+                while (rsIngredients.next()) {
+                        System.out.println(rsIngredients.getInt("idingredient"));
+                        ingredientsList.add(rsIngredients.getInt("idingredient"));          
                 }   
+                pizza.setIngredients(ingredientsList);
             }
 
         }
