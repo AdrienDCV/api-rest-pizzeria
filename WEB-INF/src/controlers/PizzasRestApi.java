@@ -21,16 +21,43 @@ public class PizzasRestApi extends HttpServlet{
         res.setContentType("application/json;charset=UTF-8");
         
         PrintWriter out = res.getWriter();
-        PizzaDAO ingDAO = new PizzaDAO();
+        PizzaDAO pizzaDAO = new PizzaDAO();
         ObjectMapper objMapper = new ObjectMapper();
         
         String pathInfo = req.getPathInfo();
         if (pathInfo == null || pathInfo.equals("/")) {
-            List<Pizza> pizzasList = ingDAO.findAll();
+            List<Pizza> pizzasList = pizzaDAO.findAll();
             String jsonString = objMapper.writeValueAsString(pizzasList);
             out.print(jsonString);
             return;
         }
+
+        String[] pathInfoSplits = pathInfo.split("/");
+        if (pathInfoSplits.length < 0 && pathInfoSplits.length < 3) {
+            res.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        String id = pathInfoSplits[1];
+        Pizza pizza = pizzaDAO.findById(Integer.parseInt(id));
+        if (pizza == null) {
+            res.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        if (pathInfoSplits.length == 2) {
+            String jsonString = objMapper.writeValueAsString(pizza);
+            out.print(jsonString);
+            return;
+        }
+
+        if (pathInfoSplits.length == 3) {
+            String jsonString = objMapper.writeValueAsString(pizza.getName());
+            out.print(jsonString);
+            return;
+        }
+
+        return;
     }
     
     public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
