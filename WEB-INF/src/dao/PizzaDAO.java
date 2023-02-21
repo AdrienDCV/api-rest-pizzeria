@@ -218,28 +218,24 @@ public class PizzaDAO {
         boolean saved = false;
 
         try {
-            Class.forName("org.postgresql.Driver");
-            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
-            
-            if (this.findById(idPizza) != null) {
-                Pizza pizza = this.findById(idPizza);
-                Statement stmtSelect = con.createStatement();
-                ResultSet rs = stmtSelect.executeQuery("SELECT * FROM pizza WHERE idbasepizza="+ pizza.getId() + " AND idingredient" + idIngredient);
-                
+            Pizza pizza = this.findById(idPizza);
+
+            if (pizza != null) {
+                Class.forName("org.postgresql.Driver");
+                this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+
+                Statement stmt = con.createStatement();
+                ResultSet rs = stmt.executeQuery("SELECT * FROM pizza WHERE idbasepizza=" + pizza.getId() + " AND idingredient=" + idIngredient);
+
                 if (!rs.next()) {
-                    System.out.println("là !!!!!!!!!!!!!");
-                    Class.forName("org.postgresql.Driver");
-                    this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
-    
                     PreparedStatement pstmtInsertIngredients = con.prepareStatement("INSERT INTO pizza VALUES(?, ?)");
                     pstmtInsertIngredients.setInt(1, pizza.getId());
                     pstmtInsertIngredients.setInt(2, idIngredient);
                     pstmtInsertIngredients.executeUpdate();
     
                     pizza.getIngredients().add(idIngredient);
-    
                     saved = true;
-                }
+                } 
             } 
         }
         catch (Exception e) {

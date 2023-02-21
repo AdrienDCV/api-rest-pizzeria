@@ -120,7 +120,11 @@ public class PizzasRestApi extends HttpServlet{
         if (pathInfoSplits.length == 3) {
             String idPizza = pathInfoSplits[1];
             String idIngredient = pathInfoSplits[2];
-            pizzaDAO.deleteIngredient(Integer.parseInt(idPizza), Integer.parseInt(idIngredient));
+            if (pizzaDAO.deleteIngredient(Integer.parseInt(idPizza), Integer.parseInt(idIngredient))) {
+                res.sendError(HttpServletResponse.SC_OK);
+            } else {
+                res.sendError(HttpServletResponse.SC_NOT_FOUND);      
+            }
         }
         
         return;
