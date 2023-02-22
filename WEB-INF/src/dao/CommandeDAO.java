@@ -2,6 +2,8 @@ package dao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +30,30 @@ public class CommandeDAO {
 
     public List<Commande> findAll() {
         List<Commande> commandesList = new ArrayList<>();
-        // TO DO
+
+        try {
+            Class.forName("org.postgresql.Driver");
+            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT * FROM commande");
+
+            while(rs.next()){
+                commandesList.add(new Commande(rs.getInt("idcommande"), rs.getInt("iduser"), rs.getString("datecommande"), null));
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                con.close();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         return commandesList;
     }
 

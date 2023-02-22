@@ -5,6 +5,7 @@ import java.util.List;
 public class Commande {
     
     // attributes
+    private int idCommande;
     private int idUser;
     private String date;
     private List<Integer> pizzas;
@@ -12,13 +13,21 @@ public class Commande {
     // constructor(s)
     public Commande() {}
 
-    public Commande(int idUser, String date, List<Integer> pizzas) {
+    public Commande(int idCommande, int idUser, String date, List<Integer> pizzas) {
+        this.idCommande = idCommande;
         this.idUser = idUser;
         this.date = date;
         this.pizzas = pizzas;
     }
 
     // methods
+    public int getIdCommande() {
+        return idCommande;
+    }
+
+    public void setIdCommande(int idCommande) {
+        this.idCommande = idCommande;
+    } 
 
     public int getIdUser() {
         return idUser;
@@ -43,4 +52,11 @@ public class Commande {
     public void setPizzas(List<Integer> pizzas) {
         this.pizzas = pizzas;
     }
+
+    @Override
+    public String toString() {
+        return "Commande [idCommande=" + idCommande + ", idUser=" + idUser + ", date=" + date + ", pizzas=" + pizzas
+                + "]";
+    }
+    
 }
