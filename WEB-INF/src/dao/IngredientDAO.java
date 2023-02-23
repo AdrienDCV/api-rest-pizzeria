@@ -26,7 +26,6 @@ public class IngredientDAO {
     public List<Ingredient> findAll() {
         List<Ingredient> ingredientsList = new ArrayList<>();
 
-        
         try {
             Class.forName("org.postgresql.Driver");
             this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");

@@ -36,10 +36,20 @@ public class CommandeDAO {
             this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
 
             Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM commande");
+            ResultSet rs = stmt.executeQuery("SELECT * FROM commandes");
 
             while(rs.next()){
-                commandesList.add(new Commande(rs.getInt("idcommande"), rs.getInt("iduser"), rs.getString("datecommande"), null));
+                commandesList.add(new Commande(rs.getInt("idcommande"), rs.getInt("idclient"), rs.getString("datecommande"), new ArrayList<>()));
+            }
+
+            // réucpérer la liste de pizzas
+            for (Commande  commande : commandesList) {
+                ResultSet rsPizzas = stmt.executeQuery("SELECT idpizza FROM commandepizza WHERE idcommande=" + commande.getIdCommande() + "GROUP BY idcommande, idpizza");
+                List<Integer> pizzasList = commande.getPizzas();
+                while (rsPizzas.next()) {
+                    pizzasList.add(rsPizzas.getInt("idpizza"));          
+                }   
+                commande.setPizzas(pizzasList);
             }
         }
         catch (Exception e) {
