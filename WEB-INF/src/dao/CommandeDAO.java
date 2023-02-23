@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -123,6 +124,34 @@ public class CommandeDAO {
         boolean saved = false; 
         // TO DO
         return saved;
+    }
+
+    public double getFinalPrice(Commande commande) {
+        double finalPrice = 0;
+
+        try {
+            Class.forName("org.postgresql.Driver");
+            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+
+            PizzaDAO pizzaDAO = new PizzaDAO();
+
+            for (Pizza pizza : commande.getPizzas()) {
+                finalPrice += pizzaDAO.getFinalPrice(pizza);               
+            }
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                con.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return finalPrice;
     }
 
 

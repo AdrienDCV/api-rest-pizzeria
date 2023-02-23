@@ -53,6 +53,14 @@ public class CommandeRestApi extends HttpServlet{
             return;
         }
 
+        // GET prix final
+        if (pathInfoSplits.length == 3 && pathInfoSplits[2].equals("prixfinal")) {
+            double finalPrice = commandeDAO.getFinalPrice(commande);
+            String jsonString = objMapper.writeValueAsString(finalPrice);
+            out.print(jsonString);
+            return;
+        }
+
         return;
     }
 
