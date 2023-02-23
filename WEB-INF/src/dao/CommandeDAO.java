@@ -2,6 +2,7 @@ package dao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class CommandeDAO {
 
             // réucpérer la liste de pizzas
             for (Commande  commande : commandesList) {
-                ResultSet rsPizzas = stmt.executeQuery("SELECT idpizza FROM commandepizza WHERE idcommande=" + commande.getIdCommande() + "GROUP BY idcommande, idpizza");
+                ResultSet rsPizzas = stmt.executeQuery("SELECT idpizza FROM commandepizza WHERE idcommande=" + commande.getIdCommande());
                 List<Pizza> pizzasList = commande.getPizzas();
                 while (rsPizzas.next()) {
                     PizzaDAO pizzaDAO = new PizzaDAO();
@@ -72,7 +73,43 @@ public class CommandeDAO {
 
     public Commande findById(int id) {
         Commande commande = null;
-        // TO DO
+        
+        try {
+            Class.forName("org.postgresql.Driver");
+            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+
+            PreparedStatement pstmtSelectCommande = con.prepareStatement("SELECT * FROM commandes WHERE idcommande=?");
+            pstmtSelectCommande.setInt(1, id);
+            ResultSet rs = pstmtSelectCommande.executeQuery();
+
+            if (rs.next()){
+                commande = new Commande(rs.getInt("idcommande"), rs.getInt("idclient"), rs.getString("datecommande"), new ArrayList<>());
+            }
+
+            PreparedStatement pstmtSelectPizza = con.prepareStatement("SELECT idpizza FROM commandepizza WHERE idcommande=?");
+            pstmtSelectPizza.setInt(1, id);
+            ResultSet rsPizzas = pstmtSelectPizza.executeQuery();
+            List<Pizza> pizzasList = commande.getPizzas();
+            while (rsPizzas.next()) {
+                PizzaDAO pizzaDAO = new PizzaDAO();
+                Pizza pizza = pizzaDAO.findById(rsPizzas.getInt("idpizza"));
+                pizzasList.add(pizza);          
+            }   
+            commande.setPizzas(pizzasList);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                con.close();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+
         return commande;
     }
 

@@ -33,6 +33,26 @@ public class CommandeRestApi extends HttpServlet{
             return;
         }
         
+        String[] pathInfoSplits = pathInfo.split("/");
+        if (pathInfoSplits.length < 0 && pathInfoSplits.length < 3) {
+            res.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+
+        String id = pathInfoSplits[1];
+        Commande commande = commandeDAO.findById(Integer.parseInt(id));
+        if (commande == null) {
+            res.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
+        // GET id
+        if (pathInfoSplits.length == 2) {
+            String jsonString = objMapper.writeValueAsString(commande);
+            out.print(jsonString);
+            return;
+        }
+
         return;
     }
 
