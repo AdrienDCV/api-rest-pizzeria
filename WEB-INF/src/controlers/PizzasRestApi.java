@@ -53,7 +53,7 @@ public class PizzasRestApi extends HttpServlet{
         }
 
         // GET prix final
-        if (pathInfoSplits.length == 3 && pathInfoSplits[3].equals("prixfinal")) {
+        if (pathInfoSplits.length == 3 && pathInfoSplits[2].equals("prixfinal")) {
             double finalPrice = pizzaDAO.getFinalPrice(pizza);
             String jsonString = objMapper.writeValueAsString(finalPrice);
             out.print(jsonString);

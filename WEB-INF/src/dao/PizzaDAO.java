@@ -78,6 +78,8 @@ public class PizzaDAO {
 
             if(rsBasePizza.next()){
                 pizza = new Pizza(rsBasePizza.getInt("id"), rsBasePizza.getString("name"), TypePate.get(rsBasePizza.getString("typePate")), rsBasePizza.getFloat("prixBase"), new ArrayList<>());
+            } else {
+                return pizza;
             }
 
             Statement stmt = con.createStatement();
@@ -115,6 +117,10 @@ public class PizzaDAO {
                 pstmtDeletePizza.setInt(1, id);
                 pstmtDeletePizza.executeUpdate();
                 
+                PreparedStatement pstmtDeleteCommande = con.prepareStatement("DELETE FROM commandepizza WHERE idpizza=?");
+                pstmtDeleteCommande.setInt(1, id);
+                pstmtDeleteCommande.executeUpdate();
+
                 PreparedStatement pstmtDeleteBasePizza = con.prepareStatement("DELETE FROM basepizza WHERE id=?");
                 pstmtDeleteBasePizza.setInt(1, id);
                 pstmtDeleteBasePizza.executeUpdate();
@@ -150,9 +156,9 @@ public class PizzaDAO {
                 pstmtDeleteIngrediStatement.setInt(2, idIngredient);
                 pstmtDeleteIngrediStatement.executeUpdate();
 
-                pizza.getIngredients().remove(idIngredient);
-
-                deleted = true;
+                if (pizza.getIngredients().remove((Integer) idIngredient)) {
+                    deleted = true;
+                }
             }
         }
         catch (Exception e) {
