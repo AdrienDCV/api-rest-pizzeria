@@ -8,12 +8,12 @@ public class Commande {
     private int idCommande;
     private int idUser;
     private String date;
-    private List<Integer> pizzas;
+    private List<Pizza> pizzas;
 
     // constructor(s)
     public Commande() {}
 
-    public Commande(int idCommande, int idUser, String date, List<Integer> pizzas) {
+    public Commande(int idCommande, int idUser, String date, List<Pizza> pizzas) {
         this.idCommande = idCommande;
         this.idUser = idUser;
         this.date = date;
@@ -45,11 +45,11 @@ public class Commande {
         this.date = date;
     }
 
-    public List<Integer> getPizzas() {
+    public List<Pizza> getPizzas() {
         return pizzas;
     }
 
-    public void setPizzas(List<Integer> pizzas) {
+    public void setPizzas(List<Pizza> pizzas) {
         this.pizzas = pizzas;
     }
 

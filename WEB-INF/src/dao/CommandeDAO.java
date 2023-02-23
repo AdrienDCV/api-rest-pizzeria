@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dto.Commande;
+import dto.Pizza;
 
 public class CommandeDAO {
     
@@ -45,9 +46,11 @@ public class CommandeDAO {
             // réucpérer la liste de pizzas
             for (Commande  commande : commandesList) {
                 ResultSet rsPizzas = stmt.executeQuery("SELECT idpizza FROM commandepizza WHERE idcommande=" + commande.getIdCommande() + "GROUP BY idcommande, idpizza");
-                List<Integer> pizzasList = commande.getPizzas();
+                List<Pizza> pizzasList = commande.getPizzas();
                 while (rsPizzas.next()) {
-                    pizzasList.add(rsPizzas.getInt("idpizza"));          
+                    PizzaDAO pizzaDAO = new PizzaDAO();
+                    Pizza pizza = pizzaDAO.findById(rsPizzas.getInt("idpizza"));
+                    pizzasList.add(pizza);          
                 }   
                 commande.setPizzas(pizzasList);
             }
