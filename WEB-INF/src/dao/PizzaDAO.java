@@ -40,15 +40,17 @@ public class PizzaDAO {
                 pizzasList.add(new Pizza(rsBasePizza.getInt("id"), rsBasePizza.getString("name"), TypePate.get(rsBasePizza.getString("typePate")), rsBasePizza.getFloat("prixBase"), new ArrayList<>(), new ArrayList<>()));
             }
 
-            Statement stmtIdsIngredients = con.createStatement();
-            Statement stmtIngredients = con.createStatement();
+            PreparedStatement pstmtIdsIngredients = con.prepareStatement("SELECT idingredient FROM pizza WHERE idbasepizza=?");
+            PreparedStatement pstmtIngredients = con.prepareStatement("SELECT * FROM ingredients WHERE id=?");
             for (Pizza pizza : pizzasList) {
-                ResultSet rsIdsIngredients = stmtIdsIngredients.executeQuery("SELECT idingredient FROM pizza WHERE idbasepizza=" + pizza.getId());
+                pstmtIdsIngredients.setInt(1, pizza.getId());
+                ResultSet rsIdsIngredients = pstmtIdsIngredients.executeQuery();
                 ArrayList<Integer> idsIngredientsList = new ArrayList<>();
                 ArrayList<Ingredient> ingredientsList = new ArrayList<>();
                 while (rsIdsIngredients.next()) {
                     idsIngredientsList.add(rsIdsIngredients.getInt("idingredient"));
-                    ResultSet rsIngredients = stmtIngredients.executeQuery("SELECT * FROM ingredients WHERE id="+rsIdsIngredients.getInt("idingredient"));
+                    pstmtIngredients.setInt(1,rsIdsIngredients.getInt("idingredient"));
+                    ResultSet rsIngredients = pstmtIngredients.executeQuery();
                     if (rsIngredients.next()) {
                         ingredientsList.add(new Ingredient(rsIngredients.getInt("id"), rsIngredients.getString("name"), rsIngredients.getFloat("price")));
                     }
@@ -88,14 +90,16 @@ public class PizzaDAO {
             if(rsBasePizza.next()){
                 pizza = new Pizza(rsBasePizza.getInt("id"), rsBasePizza.getString("name"), TypePate.get(rsBasePizza.getString("typePate")), rsBasePizza.getFloat("prixBase"), new ArrayList<>(), new ArrayList<>());
             
-                Statement stmtIdsIngredients = con.createStatement();
-                Statement stmtIngredients = con.createStatement();
-                ResultSet rsIdsIngredients = stmtIdsIngredients.executeQuery("SELECT idingredient FROM pizza WHERE idbasepizza=" + pizza.getId());
+                PreparedStatement pstmtIdsIngredients = con.prepareStatement("SELECT idingredient FROM pizza WHERE idbasepizza=?");
+                PreparedStatement pstmtIngredients = con.prepareStatement("SELECT * FROM ingredients WHERE id=?");
+                pstmtIdsIngredients.setInt(1, id);
+                ResultSet rsIdsIngredients = pstmtIdsIngredients.executeQuery();
                 ArrayList<Integer> idsIngredientsList = new ArrayList<>();
                 ArrayList<Ingredient> ingredientsList = new ArrayList<>();
                 while (rsIdsIngredients.next()) {
                     idsIngredientsList.add(rsIdsIngredients.getInt("idingredient"));
-                    ResultSet rsIngredients = stmtIngredients.executeQuery("SELECT * FROM ingredients WHERE id="+rsIdsIngredients.getInt("idingredient"));
+                    pstmtIngredients.setInt(1, rsIdsIngredients.getInt("idingredient"));
+                    ResultSet rsIngredients = pstmtIngredients.executeQuery();
                     if (rsIngredients.next()) {
                         ingredientsList.add(new Ingredient(rsIngredients.getInt("id"), rsIngredients.getString("name"), rsIngredients.getFloat("price")));
                     }
