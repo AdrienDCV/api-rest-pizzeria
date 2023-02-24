@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dto.Commande;
+import dto.Pizza;
 
 public class CommandeDAO {
     
@@ -32,6 +33,7 @@ public class CommandeDAO {
             Class.forName("org.postgresql.Driver");
             this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
 
+            PizzaDAO pizzaDAO = new PizzaDAO();
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM commandes");
 
@@ -42,11 +44,11 @@ public class CommandeDAO {
             // réucpérer la liste de pizzas
             for (Commande  commande : commandesList) {
                 ResultSet rsPizzas = stmt.executeQuery("SELECT idpizza FROM commandepizza WHERE idcommande=" + commande.getIdCommande());
-                List<Integer> pizzasList = commande.getIdsPizzasList();
+                List<Pizza> pizzasList = commande.getPizzasList();
                 while (rsPizzas.next()) {
-                    pizzasList.add(rsPizzas.getInt("idpizza"));          
+                    pizzasList.add(pizzaDAO.findById(rsPizzas.getInt("idpizza")));          
                 }   
-                commande.setIdsPizzaList(pizzasList);
+                commande.setPizzasList(pizzasList);
             }
         }
         catch (Exception e) {
@@ -71,6 +73,7 @@ public class CommandeDAO {
             Class.forName("org.postgresql.Driver");
             this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
 
+            PizzaDAO pizzaDAO = new PizzaDAO();
             Statement stmtSelectCommande = con.createStatement();
             ResultSet rsCommande = stmtSelectCommande.executeQuery("SELECT * FROM commandes WHERE idcommande="+id);
 
@@ -81,12 +84,11 @@ public class CommandeDAO {
                 PreparedStatement pstmtSelectPizza = con.prepareStatement("SELECT idpizza FROM commandepizza WHERE idcommande=?");
                 pstmtSelectPizza.setInt(1, id);
                 ResultSet rsPizzas = pstmtSelectPizza.executeQuery();
-                List<Integer> pizzasList = commande.getIdsPizzasList();
-                
+                List<Pizza> pizzasList = commande.getPizzasList();
                 while (rsPizzas.next()) {
-                    pizzasList.add(rsPizzas.getInt("idpizza"));          
+                    pizzasList.add(pizzaDAO.findById(rsPizzas.getInt("idpizza")));          
                 }   
-                commande.setIdsPizzaList(pizzasList);   
+                commande.setPizzasList(pizzasList);   
             } 
            
         }
