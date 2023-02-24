@@ -1,23 +1,26 @@
 package dto;
 
+import java.sql.Date;
 import java.util.List;
 
 public class Commande {
     
     // attributes
     private int idCommande;
-    private int idUser;
-    private String date;
-    private List<Pizza> pizzas;
+    private int idClient;
+    private Date date;
+    private List<Integer> idsPizzasList;
+    private List<Pizza> pizzasList;
 
     // constructor(s)
     public Commande() {}
 
-    public Commande(int idCommande, int idUser, String date, List<Pizza> pizzas) {
+    public Commande(int idCommande, int idClient, Date date, List<Integer> idsPizzasList, List<Pizza> pizzasList) {
         this.idCommande = idCommande;
-        this.idUser = idUser;
+        this.idClient = idClient;
         this.date = date;
-        this.pizzas = pizzas;
+        this.idsPizzasList = idsPizzasList;
+        this.pizzasList = pizzasList;
     }
 
     // methods
@@ -29,34 +32,48 @@ public class Commande {
         this.idCommande = idCommande;
     } 
 
-    public int getIdUser() {
-        return idUser;
+    public int getIdClient() {
+        return idClient;
     }
 
-    public void setIdUser(int idUser) {
-        this.idUser = idUser;
+    public void setIdClient(int idClient) {
+        this.idClient = idClient;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 
-    public List<Pizza> getPizzas() {
-        return pizzas;
+    public List<Integer> getIdsPizzasList() {
+        return idsPizzasList;
     }
 
-    public void setPizzas(List<Pizza> pizzas) {
-        this.pizzas = pizzas;
+    public void setIdsPizzaList(List<Integer> idsPizzaList) {
+        this.idsPizzasList = idsPizzaList;
+    }
+
+    public void setIdsPizzasList(List<Integer> idsPizzasList) {
+        this.idsPizzasList = idsPizzasList;
+    }
+
+    public List<Pizza> getPizzasList() {
+        return pizzasList;
+    }
+
+    public void setPizzasList(List<Pizza> pizzasList) {
+        this.pizzasList = pizzasList;
     }
 
     @Override
     public String toString() {
-        return "Commande [idCommande=" + idCommande + ", idUser=" + idUser + ", date=" + date + ", pizzas=" + pizzas
-                + "]";
+        return "Commande [idCommande=" + idCommande + ", idClient=" + idClient + ", date=" + date + ", idsPizzasList="
+                + idsPizzasList + ", pizzasList=" + pizzasList + "]";
     }
+    
+    
     
 }

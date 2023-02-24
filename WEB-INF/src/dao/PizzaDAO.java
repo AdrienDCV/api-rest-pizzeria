@@ -4,6 +4,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import dto.Ingredient;
 import dto.Pizza;
 import dto.TypePate;
 
@@ -32,20 +33,28 @@ public class PizzaDAO {
             Class.forName("org.postgresql.Driver");
             this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
 
-            Statement stmt = con.createStatement();
-            ResultSet rsBasePizza = stmt.executeQuery("SELECT * FROM basepizza");
+            Statement stmtPizzas = con.createStatement();
+            ResultSet rsBasePizza = stmtPizzas.executeQuery("SELECT * FROM basepizza");
 
             while(rsBasePizza.next()){
-                pizzasList.add(new Pizza(rsBasePizza.getInt("id"), rsBasePizza.getString("name"), TypePate.get(rsBasePizza.getString("typePate")), rsBasePizza.getFloat("prixBase"), new ArrayList<>()));
+                pizzasList.add(new Pizza(rsBasePizza.getInt("id"), rsBasePizza.getString("name"), TypePate.get(rsBasePizza.getString("typePate")), rsBasePizza.getFloat("prixBase"), new ArrayList<>(), new ArrayList<>()));
             }
 
+            Statement stmtIdsIngredients = con.createStatement();
+            Statement stmtIngredients = con.createStatement();
             for (Pizza pizza : pizzasList) {
-                ResultSet rsIngredients = stmt.executeQuery("SELECT idingredient FROM pizza WHERE idbasepizza=" + pizza.getId());
-                List<Integer> ingredientsList = pizza.getIngredients();
-                while (rsIngredients.next()) {
-                        ingredientsList.add(rsIngredients.getInt("idingredient"));          
+                ResultSet rsIdsIngredients = stmtIdsIngredients.executeQuery("SELECT idingredient FROM pizza WHERE idbasepizza=" + pizza.getId());
+                ArrayList<Integer> idsIngredientsList = new ArrayList<>();
+                ArrayList<Ingredient> ingredientsList = new ArrayList<>();
+                while (rsIdsIngredients.next()) {
+                    idsIngredientsList.add(rsIdsIngredients.getInt("idingredient"));
+                    ResultSet rsIngredients = stmtIngredients.executeQuery("SELECT * FROM ingredients WHERE id="+rsIdsIngredients.getInt("idingredient"));
+                    if (rsIngredients.next()) {
+                        ingredientsList.add(new Ingredient(rsIngredients.getInt("id"), rsIngredients.getString("name"), rsIngredients.getFloat("price")));
+                    }
                 }   
-                pizza.setIngredients(ingredientsList);
+                pizza.setIdsIngredientsList(idsIngredientsList);
+                pizza.setIngredientsList(ingredientsList);
             }
 
         }
@@ -77,18 +86,25 @@ public class PizzaDAO {
             ResultSet rsBasePizza = pstmtSelectBasePizza.executeQuery();
 
             if(rsBasePizza.next()){
-                pizza = new Pizza(rsBasePizza.getInt("id"), rsBasePizza.getString("name"), TypePate.get(rsBasePizza.getString("typePate")), rsBasePizza.getFloat("prixBase"), new ArrayList<>());
-            } else {
-                return pizza;
-            }
+                pizza = new Pizza(rsBasePizza.getInt("id"), rsBasePizza.getString("name"), TypePate.get(rsBasePizza.getString("typePate")), rsBasePizza.getFloat("prixBase"), new ArrayList<>(), new ArrayList<>());
+            
+                Statement stmtIdsIngredients = con.createStatement();
+                Statement stmtIngredients = con.createStatement();
+                ResultSet rsIdsIngredients = stmtIdsIngredients.executeQuery("SELECT idingredient FROM pizza WHERE idbasepizza=" + pizza.getId());
+                ArrayList<Integer> idsIngredientsList = new ArrayList<>();
+                ArrayList<Ingredient> ingredientsList = new ArrayList<>();
+                while (rsIdsIngredients.next()) {
+                    idsIngredientsList.add(rsIdsIngredients.getInt("idingredient"));
+                    ResultSet rsIngredients = stmtIngredients.executeQuery("SELECT * FROM ingredients WHERE id="+rsIdsIngredients.getInt("idingredient"));
+                    if (rsIngredients.next()) {
+                        ingredientsList.add(new Ingredient(rsIngredients.getInt("id"), rsIngredients.getString("name"), rsIngredients.getFloat("price")));
+                    }
+                }   
+                pizza.setIdsIngredientsList(idsIngredientsList);
+                pizza.setIngredientsList(ingredientsList);
+            } 
 
-            Statement stmt = con.createStatement();
-            ResultSet rsIngredients = stmt.executeQuery("SELECT idingredient FROM pizza WHERE idbasepizza=" + pizza.getId());
-            List<Integer> ingredientsList = pizza.getIngredients();
-            while (rsIngredients.next()) {
-                ingredientsList.add(rsIngredients.getInt("idingredient"));          
-            }   
-            pizza.setIngredients(ingredientsList);
+            
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -156,7 +172,7 @@ public class PizzaDAO {
                 pstmtDeleteIngrediStatement.setInt(2, idIngredient);
                 pstmtDeleteIngrediStatement.executeUpdate();
 
-                if (pizza.getIngredients().remove((Integer) idIngredient)) {
+                if (pizza.getIdsIngredientsList().remove((Integer) idIngredient)) {
                     deleted = true;
                 }
             }
@@ -194,10 +210,10 @@ public class PizzaDAO {
 
                 // ajout type pâte + ingrédients 
                 PreparedStatement pstmtInsertIngredients = con.prepareStatement("INSERT INTO pizza VALUES(?,?)");
-                List<Integer> ingredientsIDsTab =  pizza.getIngredients();
+                List<Integer> ingredientsList =  pizza.getIdsIngredientsList();
                 pstmtInsertIngredients.setInt(1, pizza.getId());
-                for (int i = 0; i < ingredientsIDsTab.size(); i++) {
-                    pstmtInsertIngredients.setInt(2,ingredientsIDsTab.get(i));
+                for (int i = 0; i < ingredientsList.size(); i++) {
+                    pstmtInsertIngredients.setInt(2,ingredientsList.get(i));
                     pstmtInsertIngredients.addBatch();
                 }
                 int[] inserts = pstmtInsertIngredients.executeBatch();
@@ -239,7 +255,7 @@ public class PizzaDAO {
                     pstmtInsertIngredients.setInt(2, idIngredient);
                     pstmtInsertIngredients.executeUpdate();
     
-                    pizza.getIngredients().add(idIngredient);
+                    pizza.getIdsIngredientsList().add(idIngredient);
                     saved = true;
                 } 
             } 
@@ -266,16 +282,9 @@ public class PizzaDAO {
             Class.forName("org.postgresql.Driver");
             this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
 
-            PreparedStatement pstmtSelectPriceBasePizza = con.prepareStatement("SELECT prixbase FROM basepizza WHERE id=?");
-            pstmtSelectPriceBasePizza.setInt(1, pizza.getId());
-            ResultSet rsPriceBasePizza = pstmtSelectPriceBasePizza.executeQuery();
-
-            if(rsPriceBasePizza.next()){
-              finalPrice = rsPriceBasePizza.getFloat("prixbase");
-            }
-
+            finalPrice += pizza.getPrixBase();
             Statement stmtPriceIngredients = con.createStatement();
-            for (Integer idingredients : pizza.getIngredients()) {
+            for (Integer idingredients : pizza.getIdsIngredientsList()) {
                 ResultSet rsPriceIngredients = stmtPriceIngredients.executeQuery("SELECT price FROM ingredients WHERE id=" + idingredients);
                 if (rsPriceIngredients.next()) {
                     finalPrice += rsPriceIngredients.getFloat("price");

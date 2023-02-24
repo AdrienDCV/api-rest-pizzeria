@@ -1,16 +1,10 @@
 package dao;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 import dto.Commande;
-import dto.Pizza;
 
 public class CommandeDAO {
     
@@ -42,19 +36,17 @@ public class CommandeDAO {
             ResultSet rs = stmt.executeQuery("SELECT * FROM commandes");
 
             while(rs.next()){
-                commandesList.add(new Commande(rs.getInt("idcommande"), rs.getInt("idclient"), rs.getString("datecommande"), new ArrayList<>()));
+                commandesList.add(new Commande(rs.getInt("idcommande"), rs.getInt("idclient"), rs.getDate("datecommande"), new ArrayList<>(), new ArrayList<>()));
             }
 
             // réucpérer la liste de pizzas
             for (Commande  commande : commandesList) {
                 ResultSet rsPizzas = stmt.executeQuery("SELECT idpizza FROM commandepizza WHERE idcommande=" + commande.getIdCommande());
-                List<Pizza> pizzasList = commande.getPizzas();
+                List<Integer> pizzasList = commande.getIdsPizzasList();
                 while (rsPizzas.next()) {
-                    PizzaDAO pizzaDAO = new PizzaDAO();
-                    Pizza pizza = pizzaDAO.findById(rsPizzas.getInt("idpizza"));
-                    pizzasList.add(pizza);          
+                    pizzasList.add(rsPizzas.getInt("idpizza"));          
                 }   
-                commande.setPizzas(pizzasList);
+                commande.setIdsPizzaList(pizzasList);
             }
         }
         catch (Exception e) {
@@ -79,24 +71,24 @@ public class CommandeDAO {
             Class.forName("org.postgresql.Driver");
             this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
 
-            PreparedStatement pstmtSelectCommande = con.prepareStatement("SELECT * FROM commandes WHERE idcommande=?");
-            pstmtSelectCommande.setInt(1, id);
-            ResultSet rs = pstmtSelectCommande.executeQuery();
+            Statement stmtSelectCommande = con.createStatement();
+            ResultSet rsCommande = stmtSelectCommande.executeQuery("SELECT * FROM commandes WHERE idcommande="+id);
 
-            if (rs.next()){
-                commande = new Commande(rs.getInt("idcommande"), rs.getInt("idclient"), rs.getString("datecommande"), new ArrayList<>());
-            }
-
-            PreparedStatement pstmtSelectPizza = con.prepareStatement("SELECT idpizza FROM commandepizza WHERE idcommande=?");
-            pstmtSelectPizza.setInt(1, id);
-            ResultSet rsPizzas = pstmtSelectPizza.executeQuery();
-            List<Pizza> pizzasList = commande.getPizzas();
-            while (rsPizzas.next()) {
-                PizzaDAO pizzaDAO = new PizzaDAO();
-                Pizza pizza = pizzaDAO.findById(rsPizzas.getInt("idpizza"));
-                pizzasList.add(pizza);          
-            }   
-            commande.setPizzas(pizzasList);
+            if (rsCommande.next()){
+                System.out.println("passe par là ! (CommandeDAO)");
+                commande = new Commande(rsCommande.getInt("idcommande"), rsCommande.getInt("idclient"), rsCommande.getDate("datecommande"), new ArrayList<>(), new ArrayList<>());
+            
+                PreparedStatement pstmtSelectPizza = con.prepareStatement("SELECT idpizza FROM commandepizza WHERE idcommande=?");
+                pstmtSelectPizza.setInt(1, id);
+                ResultSet rsPizzas = pstmtSelectPizza.executeQuery();
+                List<Integer> pizzasList = commande.getIdsPizzasList();
+                
+                while (rsPizzas.next()) {
+                    pizzasList.add(rsPizzas.getInt("idpizza"));          
+                }   
+                commande.setIdsPizzaList(pizzasList);   
+            } 
+           
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -110,19 +102,49 @@ public class CommandeDAO {
             }
         }
 
-
         return commande;
-    }
-
-    public boolean delete(int id) {
-        boolean deleted = false;
-        // TO DO
-        return deleted;
     }
 
     public boolean save(Commande commande) {
         boolean saved = false; 
-        // TO DO
+        
+        try {
+            if (this.findById(commande.getIdCommande()) == null) {
+                Class.forName("org.postgresql.Driver");
+                this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+
+                PreparedStatement pstmtInsertCommande = con.prepareStatement("INSERT INTO commandes VALUES(?,?,?)");
+                pstmtInsertCommande.setInt(1, commande.getIdCommande());
+                pstmtInsertCommande.setInt(2, commande.getIdClient());
+                pstmtInsertCommande.setDate(3, commande.getDate());
+                pstmtInsertCommande.executeUpdate();
+
+                PreparedStatement pstmtInsertPizzas = con.prepareStatement("INSERT INTO commandepizza VALUES(?,?)");
+                List<Integer> pizzasList =  commande.getIdsPizzasList();
+                pstmtInsertPizzas.setInt(1, commande.getIdCommande());
+                for (int i = 0; i < pizzasList.size(); i++) {
+                    pstmtInsertPizzas.setInt(2,pizzasList.get(i));
+                    pstmtInsertPizzas.addBatch();
+                }
+                int[] inserts = pstmtInsertPizzas.executeBatch();
+                if (inserts != null) {
+                    saved = true;
+                }         
+
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
         return saved;
     }
 
@@ -133,10 +155,12 @@ public class CommandeDAO {
             Class.forName("org.postgresql.Driver");
             this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
 
-            PizzaDAO pizzaDAO = new PizzaDAO();
-
-            for (Pizza pizza : commande.getPizzas()) {
-                finalPrice += pizzaDAO.getFinalPrice(pizza);               
+            Statement stmtPrice = con.createStatement(); 
+            for (Integer pizzaId : commande.getIdsPizzasList()) {  
+                ResultSet rsPrice = stmtPrice.executeQuery("SELECT prixBase FROM basepizza WHERE id=" + pizzaId);
+                finalPrice += rsPrice.getFloat("prixBase");
+                rsPrice = stmtPrice.executeQuery("SELECT SUM(price) AS price FROM pizza AS p JOIN ingredients AS i ON (p.idingredient = i.id) WHERE p.idbasepizza =" + pizzaId);
+                finalPrice += rsPrice.getFloat("price");
             }
 
         }

@@ -1,6 +1,7 @@
 package controlers;
 
 import java.io.IOException;
+import java.io.*;
 import java.io.PrintWriter;
 import java.util.List;
 
@@ -65,7 +66,19 @@ public class CommandeRestApi extends HttpServlet{
     }
 
     public void doPost (HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        // TO DO
+
+        res.setContentType("application/json;charset=UTF-8");
+        ObjectMapper objMapper = new ObjectMapper();
+        CommandeDAO commandeDAO = new CommandeDAO();
+
+        String commandeInfos = new BufferedReader(new InputStreamReader(req.getInputStream())).readLine();
+        Commande commande = objMapper.readValue(commandeInfos, Commande.class);
+        if (commandeDAO.save(commande)) {
+            res.sendError(HttpServletResponse.SC_CREATED);  
+        } else {
+            res.sendError(HttpServletResponse.SC_CONFLICT);
+        }
+        return;
     }
 
 }

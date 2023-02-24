@@ -9,17 +9,19 @@ public class Pizza {
     private String name;
     private TypePate typePate;
     private double prixBase;
-    private List<Integer> ingredients; 
+    private List<Integer> idsIngredientsList; 
+    private List<Ingredient> ingredientsList;
 
     // constructor(s)
     public Pizza() {}
 
-    public Pizza(int id, String name, TypePate typePate, double prixBase, List<Integer> ingredients) {
+    public Pizza(int id, String name, TypePate typePate, double prixBase, List<Integer> idsIngredientsList, List<Ingredient> ingredientsList) {
         this.id = id;
         this.name = name;
         this.typePate = typePate;
         this.prixBase = prixBase;
-        this.ingredients = ingredients; 
+        this.idsIngredientsList = idsIngredientsList; 
+        this.ingredientsList = ingredientsList;
     }
 
     // methods
@@ -55,19 +57,28 @@ public class Pizza {
         this.prixBase = prixBase;
     }
 
-    public List<Integer> getIngredients() {
-        return ingredients;
+    public List<Integer> getIdsIngredientsList() {
+        return idsIngredientsList;
     }
 
-    public void setIngredients(List<Integer> ingredients) {
-        this.ingredients = ingredients;
+    public void setIdsIngredientsList(List<Integer> idsIngredientsList) {
+        this.idsIngredientsList = idsIngredientsList;
     }
 
+    public List<Ingredient> getIngredientsList() {
+        return ingredientsList;
+    }
+
+    public void setIngredientsList(List<Ingredient> ingredientsList) {
+        this.ingredientsList = ingredientsList;
+    }
 
     @Override
     public String toString() {
         return "Pizza [id=" + id + ", name=" + name + ", typePate=" + typePate + ", prixBase=" + prixBase
-                + ", Ingredients=" + ingredients + "]";
+                + ", idsIngredientsList=" + idsIngredientsList + ", ingredientsList=" + ingredientsList + "]";
     }
+
+    
 
 }
