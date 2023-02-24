@@ -9,17 +9,15 @@ public class Commande {
     private int idCommande;
     private int idClient;
     private Date date;
-    private List<Integer> idsPizzasList;
     private List<Pizza> pizzasList;
 
     // constructor(s)
     public Commande() {}
 
-    public Commande(int idCommande, int idClient, Date date, List<Integer> idsPizzasList, List<Pizza> pizzasList) {
+    public Commande(int idCommande, int idClient, Date date, List<Pizza> pizzasList) {
         this.idCommande = idCommande;
         this.idClient = idClient;
         this.date = date;
-        this.idsPizzasList = idsPizzasList;
         this.pizzasList = pizzasList;
     }
 
@@ -48,18 +46,6 @@ public class Commande {
         this.date = date;
     }
 
-    public List<Integer> getIdsPizzasList() {
-        return idsPizzasList;
-    }
-
-    public void setIdsPizzaList(List<Integer> idsPizzaList) {
-        this.idsPizzasList = idsPizzaList;
-    }
-
-    public void setIdsPizzasList(List<Integer> idsPizzasList) {
-        this.idsPizzasList = idsPizzasList;
-    }
-
     public List<Pizza> getPizzasList() {
         return pizzasList;
     }
@@ -70,8 +56,7 @@ public class Commande {
 
     @Override
     public String toString() {
-        return "Commande [idCommande=" + idCommande + ", idClient=" + idClient + ", date=" + date + ", idsPizzasList="
-                + idsPizzasList + ", pizzasList=" + pizzasList + "]";
+        return "Commande [idCommande=" + idCommande + ", idClient=" + idClient + ", date=" + date + ", pizzasList=" + pizzasList + "]";
     }
     
     

@@ -38,7 +38,7 @@ public class CommandeDAO {
             ResultSet rs = stmt.executeQuery("SELECT * FROM commandes");
 
             while(rs.next()){
-                commandesList.add(new Commande(rs.getInt("idcommande"), rs.getInt("idclient"), rs.getDate("datecommande"), new ArrayList<>(), new ArrayList<>()));
+                commandesList.add(new Commande(rs.getInt("idcommande"), rs.getInt("idclient"), rs.getDate("datecommande"), new ArrayList<>()));
             }
 
             // réucpérer la liste de pizzas
@@ -78,8 +78,7 @@ public class CommandeDAO {
             ResultSet rsCommande = stmtSelectCommande.executeQuery("SELECT * FROM commandes WHERE idcommande="+id);
 
             if (rsCommande.next()){
-                System.out.println("passe par là ! (CommandeDAO)");
-                commande = new Commande(rsCommande.getInt("idcommande"), rsCommande.getInt("idclient"), rsCommande.getDate("datecommande"), new ArrayList<>(), new ArrayList<>());
+                commande = new Commande(rsCommande.getInt("idcommande"), rsCommande.getInt("idclient"), rsCommande.getDate("datecommande"), new ArrayList<>());
             
                 PreparedStatement pstmtSelectPizza = con.prepareStatement("SELECT idpizza FROM commandepizza WHERE idcommande=?");
                 pstmtSelectPizza.setInt(1, id);
@@ -122,10 +121,10 @@ public class CommandeDAO {
                 pstmtInsertCommande.executeUpdate();
 
                 PreparedStatement pstmtInsertPizzas = con.prepareStatement("INSERT INTO commandepizza VALUES(?,?)");
-                List<Integer> pizzasList =  commande.getIdsPizzasList();
+                List<Pizza> pizzasList =  commande.getPizzasList();
                 pstmtInsertPizzas.setInt(1, commande.getIdCommande());
                 for (int i = 0; i < pizzasList.size(); i++) {
-                    pstmtInsertPizzas.setInt(2,pizzasList.get(i));
+                    pstmtInsertPizzas.setInt(2,pizzasList.get(i).getId());
                     pstmtInsertPizzas.addBatch();
                 }
                 int[] inserts = pstmtInsertPizzas.executeBatch();
@@ -158,11 +157,18 @@ public class CommandeDAO {
             this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
 
             Statement stmtPrice = con.createStatement(); 
-            for (Integer pizzaId : commande.getIdsPizzasList()) {  
-                ResultSet rsPrice = stmtPrice.executeQuery("SELECT prixBase FROM basepizza WHERE id=" + pizzaId);
-                finalPrice += rsPrice.getFloat("prixBase");
-                rsPrice = stmtPrice.executeQuery("SELECT SUM(price) AS price FROM pizza AS p JOIN ingredients AS i ON (p.idingredient = i.id) WHERE p.idbasepizza =" + pizzaId);
-                finalPrice += rsPrice.getFloat("price");
+            for (Pizza pizza : commande.getPizzasList()) {  
+                ResultSet rsPizzaPrice = stmtPrice.executeQuery("SELECT prixBase FROM basepizza WHERE id=" + pizza.getId());
+                if (rsPizzaPrice.next()) {
+                    finalPrice += rsPizzaPrice.getFloat("prixBase");
+                    ResultSet rsPizzaIngredientsPrice = stmtPrice.executeQuery("SELECT SUM(price) AS price FROM pizza AS p JOIN ingredients AS i ON (p.idingredient = i.id) WHERE p.idbasepizza =" + pizza.getId());
+                    if (rsPizzaIngredientsPrice.next()) {
+                        finalPrice += rsPizzaIngredientsPrice.getFloat("price");
+                        System.out.println(finalPrice);
+                    }
+                  
+                }
+                
             }
 
         }
