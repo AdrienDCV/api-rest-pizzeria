@@ -164,13 +164,9 @@ public class CommandeDAO {
                     ResultSet rsPizzaIngredientsPrice = stmtPrice.executeQuery("SELECT SUM(price) AS price FROM pizza AS p JOIN ingredients AS i ON (p.idingredient = i.id) WHERE p.idbasepizza =" + pizza.getId());
                     if (rsPizzaIngredientsPrice.next()) {
                         finalPrice += rsPizzaIngredientsPrice.getFloat("price");
-                        System.out.println(finalPrice);
-                    }
-                  
+                    } 
                 }
-                
             }
-
         }
         catch (Exception e) {
             e.printStackTrace();

@@ -310,4 +310,28 @@ public class PizzaDAO {
         return finalPrice;
     }
 
+    public boolean updatePizza(String datasToUpdate) {
+        boolean updated = false;
+
+        try {
+            Class.forName("org.postgresql.Driver");
+            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                con.close();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+
+        return updated;
+    }
+
 }
