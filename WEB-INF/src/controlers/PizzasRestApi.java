@@ -33,7 +33,8 @@ public class PizzasRestApi extends HttpServlet{
         }
 
         String[] pathInfoSplits = pathInfo.split("/");
-        if (pathInfoSplits.length < 0 && pathInfoSplits.length < 3) {
+        System.out.println(pathInfoSplits.length);
+        if (pathInfoSplits.length > 3) {
             res.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
