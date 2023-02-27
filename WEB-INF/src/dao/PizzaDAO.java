@@ -23,6 +23,7 @@ public class PizzaDAO {
             e.printStackTrace();
         }
     }
+    
 
     // methods
     public List<Pizza> findAll() {
@@ -309,5 +310,6 @@ public class PizzaDAO {
 
         return finalPrice;
     }
+    
 
 }

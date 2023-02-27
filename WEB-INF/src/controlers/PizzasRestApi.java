@@ -129,5 +129,11 @@ public class PizzasRestApi extends HttpServlet{
         
         return;
     }
+    
+    public void doPatch (HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException{
+    	
+    	
+    }
+    
 
 }
