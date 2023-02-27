@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dto.Commande;
+import dto.Ingredient;
 import dto.Pizza;
 
 public class CommandeDAO {
@@ -113,6 +114,7 @@ public class CommandeDAO {
             if (this.findById(commande.getIdCommande()) == null) {
                 Class.forName("org.postgresql.Driver");
                 this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+                PizzaDAO pizzaDAO = new PizzaDAO();
 
                 PreparedStatement pstmtInsertCommande = con.prepareStatement("INSERT INTO commandes VALUES(?,?,?)");
                 pstmtInsertCommande.setInt(1, commande.getIdCommande());
@@ -123,8 +125,11 @@ public class CommandeDAO {
                 PreparedStatement pstmtInsertPizzas = con.prepareStatement("INSERT INTO commandepizza VALUES(?,?)");
                 List<Pizza> pizzasList =  commande.getPizzasList();
                 pstmtInsertPizzas.setInt(1, commande.getIdCommande());
-                for (int i = 0; i < pizzasList.size(); i++) {
-                    pstmtInsertPizzas.setInt(2,pizzasList.get(i).getId());
+                for (Pizza pizza : pizzasList) {
+                    pstmtInsertPizzas.setInt(2,pizza.getId());
+                    for (Integer idIngredient : pizza.getIdsIngredientsList()) {
+                        pizzaDAO.addIngredient(pizza.getId(), idIngredient);
+                    }
                     pstmtInsertPizzas.addBatch();
                 }
                 int[] inserts = pstmtInsertPizzas.executeBatch();
