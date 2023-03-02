@@ -58,7 +58,14 @@ public class IngredientDAO {
 
         try {
             Class.forName("org.postgresql.Driver");
-            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+            String url = "jdbc:postgresql://psqlserv/but2";
+    		String nom = "ylanngronnieretu";
+    		String mdp = "moi";
+
+    		Class.forName("org.postgresql.Driver");
+    		this.con = DriverManager.getConnection(url,nom,mdp);
+            
+            
 
             PreparedStatement pstmtSelect = con.prepareStatement("SELECT * FROM ingredients WHERE id =?");
             pstmtSelect.setInt(1, id);

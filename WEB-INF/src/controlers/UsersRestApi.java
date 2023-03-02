@@ -12,9 +12,11 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dao.IngredientDAO;
+import dao.JwtManager;
 import dao.UsersDAO;
 import dto.Ingredient;
 import dto.Users;
+import io.jsonwebtoken.Claims;
 
 public class UsersRestApi extends HttpServlet{
 
@@ -28,8 +30,8 @@ public class UsersRestApi extends HttpServlet{
         
         String pathInfo = req.getPathInfo();
         if (pathInfo == null || pathInfo.equals("/")) {
-            List<Users> ingredientsList = usersDAO.findAll();
-            String jsonString = objMapper.writeValueAsString(ingredientsList);
+            List<Users> usersList = usersDAO.findAll();
+            String jsonString = objMapper.writeValueAsString(usersList);
             out.print(jsonString);
             return;
         }
@@ -41,7 +43,7 @@ public class UsersRestApi extends HttpServlet{
         }
 
         String id = pathInfoSplits[1];
-        Users user= UsersDAO.findById(Integer.parseInt(id));
+        Users user= usersDAO.findById(Integer.parseInt(id));
         if (user == null) {
             res.sendError(HttpServletResponse.SC_NOT_FOUND);
             return;
@@ -49,18 +51,48 @@ public class UsersRestApi extends HttpServlet{
 
         // GET id
         if (pathInfoSplits.length == 2) {
-            String jsonString = objMapper.writeValueAsString(ingredient);
+            String jsonString = objMapper.writeValueAsString(user);
             out.print(jsonString);
             return;
         }
-
-        // GET name
-        if (pathInfoSplits.length == 3) {
-            String jsonString = objMapper.writeValueAsString(ingredient.getName());
-            out.print(jsonString);
-            return;
-        }
+        	
 
         return;
     }
+	
+	public boolean verifToken(HttpServletRequest req, HttpServletResponse res) throws IOException {
+		if(req.getParameter("login")!=null && req.getParameter("mdp")!=null) {
+        	JwtManager jwt=new JwtManager(""+req.getParameter("mdp"));
+        	String token=jwt.createJWT();
+        	UsersDAO userDAO =new UsersDAO();
+        	Users user1=userDAO.findByLogs(req.getParameter("login"), req.getParameter("mdp"));
+        	if(user1!=null) {
+        		ObjectMapper objMapper =new ObjectMapper();
+				PrintWriter out=res.getWriter();
+				if(user1.getToken()!=null) {
+        			Claims claim;
+					try {
+						claim = jwt.decodeJWT(token);
+						if(user1.getToken()!=claim.toString()) {
+	        				return false;
+	        			}
+						else {
+							String jsonString = objMapper.writeValueAsString(token);
+							out.print(jsonString);
+							return true;
+						}
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+        			
+        			
+        		}
+        		else {
+        			return false;
+        		}
+        	}
+        }
+		return false;
+	}
 }
