@@ -57,8 +57,6 @@ public class UsersDAO {
     
     public Users findById(int id) {
     	Users user = null;
-
-
     	try {
     		PreparedStatement pstmtSelect = con.prepareStatement("SELECT * FROM users WHERE idclient =?");
     		pstmtSelect.setInt(1, id);
@@ -66,6 +64,33 @@ public class UsersDAO {
     		
     		if (rs.next()) {
     			user = new Users(id, rs.getString("name"), rs.getString("password"), rs.getString("token"), rs.getString("address"), rs.getString("tel"));
+                }
+            }
+            
+    	catch (Exception e) {    
+    		e.printStackTrace();   
+    	}
+    	finally {
+    		try {
+    			con.close();
+    		} catch (SQLException e) {
+    			e.printStackTrace();   
+    		}
+    	}
+            
+    	return user;
+    }
+    
+    public Users findByLogs(String login,String mdp) {
+    	Users user = null;
+    	try {
+    		PreparedStatement pstmtSelect = con.prepareStatement("SELECT * FROM users WHERE name=? mdp=?");
+    		pstmtSelect.setString(1, login);
+    		pstmtSelect.setString(2, mdp);
+    		ResultSet rs = pstmtSelect.executeQuery();
+    		
+    		if (rs.next()) {
+    			user = new Users(rs.getInt("idclient"), rs.getString("name"), rs.getString("password"), rs.getString("token"), rs.getString("address"), rs.getString("tel"));
                 }
             }
             
@@ -96,5 +121,28 @@ public class UsersDAO {
     
     public String getTokenByUserId(int id) {
     	return this.findById(id).getToken();
+    }
+    
+    public void saveToken(Users user, String token){
+    	
+    	try {
+    		user.setToken(token);
+    		PreparedStatement pstmtUpdate=con.prepareStatement("SET token=? FROM users WHERE idclient=?");
+    		pstmtUpdate.setString(1, token);
+    		pstmtUpdate.setInt(2, user.getIdclient());
+    		pstmtUpdate.executeUpdate();
+    	}
+            
+    	catch (Exception e) {    
+    		e.printStackTrace();   
+    	}
+    	finally {
+    		try {
+    			con.close();
+    		} catch (SQLException e) {
+    			e.printStackTrace();   
+    		}
+    	}
+            
     }
 }

@@ -19,6 +19,7 @@ public class JwtManager {
     // pour SHA256 : 256 bits mini
     //private static final String SECRET_KEY = "bachibouzoukbachibouzoukbachibouzoukbachibouzouk";
 	private String secretKey;
+	
 	public JwtManager(String secretKey) {
 		this.secretKey=secretKey;
 	}

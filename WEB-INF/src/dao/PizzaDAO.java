@@ -312,13 +312,61 @@ public class PizzaDAO {
     }
     
 
-    public boolean updatePizza(String datasToUpdate) {
+    public boolean updatePizza(int idPizza, Pizza newPizza) {
         boolean updated = false;
 
         try {
+            Pizza oldPizza = this.findById(idPizza);
             Class.forName("org.postgresql.Driver");
             this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+            // update de la pizza de base
+            PreparedStatement pstmtUpdateBasePizza = con.prepareStatement("UPDATE basepizza SET name=?, typepate=?, prixbase=? WHERE id=?");
+            pstmtUpdateBasePizza.setInt(4, idPizza); 
 
+            // update des ingrédients
+            PreparedStatement pstmtUpdateIngredients = con.prepareStatement("UPDATE pizza SET idingredient=? WHERE idbasepizza=?");
+            pstmtUpdateIngredients.setInt(2, idPizza); 
+
+            // comparaison des différentes attributs
+            if (oldPizza != null && newPizza != null) {
+                if (!oldPizza.getName().equals(newPizza.getName()) && newPizza.getName() != null) {
+                    pstmtUpdateBasePizza.setString(1, newPizza.getName());
+                } else {
+                    pstmtUpdateBasePizza.setString(1, oldPizza.getName());
+                }
+
+                if (newPizza.getTypePate() != null) {
+                    if (!oldPizza.getTypePate().getLabel().equals(newPizza.getTypePate().getLabel())) {
+                        pstmtUpdateBasePizza.setString(2, newPizza.getTypePate().getLabel());
+                    } 
+                } else {
+                    pstmtUpdateBasePizza.setString(2, oldPizza.getTypePate().getLabel());
+                }
+                
+
+                if (oldPizza.getPrixBase() != newPizza.getPrixBase()) {
+                    pstmtUpdateBasePizza.setDouble(3, oldPizza.getPrixBase());
+                } else {
+                    pstmtUpdateBasePizza.setDouble(3, oldPizza.getPrixBase());
+                }
+                
+                if (oldPizza.getIngredientsList().equals(newPizza.getIngredientsList())) {
+                    for (Integer idIngredient : newPizza.getIdsIngredientsList()) {
+                        pstmtUpdateIngredients.setInt(1, idIngredient);
+                        pstmtUpdateIngredients.addBatch();
+                    }
+                } else {
+                    for (Integer idIngredient : oldPizza.getIdsIngredientsList()) {
+                        pstmtUpdateIngredients.setInt(1, idIngredient);
+                        pstmtUpdateIngredients.addBatch();
+                    }
+                }
+
+            }
+            System.out.println(pstmtUpdateBasePizza.toString());
+            pstmtUpdateBasePizza.executeUpdate();
+            pstmtUpdateIngredients.executeBatch();
+            updated = true;
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -331,7 +379,6 @@ public class PizzaDAO {
                 e.printStackTrace();
             }
         }
-
 
         return updated;
     }
