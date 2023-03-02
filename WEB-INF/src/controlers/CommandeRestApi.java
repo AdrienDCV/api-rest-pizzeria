@@ -18,14 +18,16 @@ import dto.Commande;
 
 @WebServlet("/commandes/*")
 public class CommandeRestApi extends HttpServlet{
+
+    // attributes
+    CommandeDAO commandeDAO = new CommandeDAO();
+    ObjectMapper objMapper = new ObjectMapper();
     
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         res.setContentType("application/json;charset=UTF-8");
         
         PrintWriter out = res.getWriter();
-        CommandeDAO commandeDAO = new CommandeDAO();
-        ObjectMapper objMapper = new ObjectMapper();
-        
+    
         String pathInfo = req.getPathInfo();
         if (pathInfo == null || pathInfo.equals("/")) {
             List<Commande> commandesList = commandeDAO.findAll();
@@ -68,8 +70,6 @@ public class CommandeRestApi extends HttpServlet{
     public void doPost (HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
         res.setContentType("application/json;charset=UTF-8");
-        ObjectMapper objMapper = new ObjectMapper();
-        CommandeDAO commandeDAO = new CommandeDAO();
 
         String commandeInfos = new BufferedReader(new InputStreamReader(req.getInputStream())).readLine();
         Commande commande = objMapper.readValue(commandeInfos, Commande.class);

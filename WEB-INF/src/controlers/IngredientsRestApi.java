@@ -19,14 +19,15 @@ import dto.Ingredient;
 @WebServlet("/ingredients/*")
 public class IngredientsRestApi extends HttpServlet {
 
-   
+    // attributes
+    IngredientDAO ingDAO = new IngredientDAO();
+    ObjectMapper objMapper = new ObjectMapper();
 
+    // methods
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         res.setContentType("application/json;charset=UTF-8");
         
         PrintWriter out = res.getWriter();
-        IngredientDAO ingDAO = new IngredientDAO();
-        ObjectMapper objMapper = new ObjectMapper();
         
         String pathInfo = req.getPathInfo();
         if (pathInfo == null || pathInfo.equals("/")) {
@@ -69,8 +70,6 @@ public class IngredientsRestApi extends HttpServlet {
     public void doPost (HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
         res.setContentType("application/json;charset=UTF-8");
-        ObjectMapper objMapper = new ObjectMapper();
-        IngredientDAO ingDAO = new IngredientDAO();
 
         String ingredientInfos = new BufferedReader(new InputStreamReader(req.getInputStream())).readLine();
         Ingredient ingredient = objMapper.readValue(ingredientInfos, Ingredient.class);
@@ -86,7 +85,6 @@ public class IngredientsRestApi extends HttpServlet {
     public void doDelete (HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
         res.setContentType("application/json;charset=UTF-8");
-        IngredientDAO ingDAO = new IngredientDAO();
 
         String pathInfo = req.getPathInfo();
         String[] pathInfoSplits = pathInfo.split("/");

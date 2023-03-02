@@ -17,14 +17,17 @@ import dto.Pizza;
 
 @WebServlet("/pizzas/*")
 public class PizzasRestApi extends HttpServlet{
+   
+    // attributes
+    PizzaDAO pizzaDAO = new PizzaDAO();
+    ObjectMapper objMapper = new ObjectMapper();
 
+
+    // methods
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         res.setContentType("application/json;charset=UTF-8");
         
         PrintWriter out = res.getWriter();
-        PizzaDAO pizzaDAO = new PizzaDAO();
-        ObjectMapper objMapper = new ObjectMapper();
-        
         String pathInfo = req.getPathInfo();
         if (pathInfo == null || pathInfo.equals("/")) {
             List<Pizza> pizzasList = pizzaDAO.findAll();
@@ -68,8 +71,6 @@ public class PizzasRestApi extends HttpServlet{
     public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
         res.setContentType("application/json;charset=UTF-8");
-        ObjectMapper objMapper = new ObjectMapper();
-        PizzaDAO pizzaDAO = new PizzaDAO();
 
         String pathInfo = req.getPathInfo();
         String[] pathInfoSplits = pathInfo.split("/");
@@ -100,7 +101,6 @@ public class PizzasRestApi extends HttpServlet{
     public void doDelete (HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
         res.setContentType("application/json;charset=UTF-8");
-        PizzaDAO pizzaDAO = new PizzaDAO();
 
         String pathInfo = req.getPathInfo();
         String[] pathInfoSplits = pathInfo.split("/");
@@ -147,8 +147,6 @@ public class PizzasRestApi extends HttpServlet{
     public void doPatch (HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException{
     	System.out.println("ici !");
         res.setContentType("application/json;charset=UTF-8");
-        PizzaDAO pizzaDAO = new PizzaDAO();
-        ObjectMapper objMapper = new ObjectMapper();
 
         String pathInfo = req.getPathInfo();
         String[] pathInfoSplits = pathInfo.split("/");
