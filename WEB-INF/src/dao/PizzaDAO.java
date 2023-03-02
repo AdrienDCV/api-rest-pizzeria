@@ -241,7 +241,7 @@ public class PizzaDAO {
         return saved;
     }
 
-    public boolean addIngredient(int idPizza, int idIngredient) {
+    public boolean addIngredient(int idPizza, Ingredient ingredient) {
         boolean saved = false;
 
         try {
@@ -251,16 +251,15 @@ public class PizzaDAO {
                 Class.forName("org.postgresql.Driver");
                 this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
 
-                Statement stmt = con.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT * FROM pizza WHERE idbasepizza=" + pizza.getId() + " AND idingredient=" + idIngredient);
 
-                if (!rs.next()) {
+
+                if (!pizza.getIngredientsList().contains(ingredient)) {
                     PreparedStatement pstmtInsertIngredients = con.prepareStatement("INSERT INTO pizza VALUES(?, ?)");
                     pstmtInsertIngredients.setInt(1, pizza.getId());
-                    pstmtInsertIngredients.setInt(2, idIngredient);
+                    pstmtInsertIngredients.setInt(2, ingredient.getId());
                     pstmtInsertIngredients.executeUpdate();
     
-                    pizza.getIdsIngredientsList().add(idIngredient);
+                    pizza.getIngredientsList().add(ingredient);
                     saved = true;
                 } 
             } 

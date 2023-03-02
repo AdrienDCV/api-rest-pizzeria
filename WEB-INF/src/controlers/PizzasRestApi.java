@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dao.PizzaDAO;
+import dto.Ingredient;
 import dto.Pizza;
 
 @WebServlet("/pizzas/*")
@@ -64,37 +65,37 @@ public class PizzasRestApi extends HttpServlet{
         return;
     }
     
-    // public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+    public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
-    //     res.setContentType("application/json;charset=UTF-8");
-    //     ObjectMapper objMapper = new ObjectMapper();
-    //     PizzaDAO pizzaDAO = new PizzaDAO();
+        res.setContentType("application/json;charset=UTF-8");
+        ObjectMapper objMapper = new ObjectMapper();
+        PizzaDAO pizzaDAO = new PizzaDAO();
 
-    //     String pathInfo = req.getPathInfo();
-    //     String[] pathInfoSplits = pathInfo.split("/");
+        String pathInfo = req.getPathInfo();
+        String[] pathInfoSplits = pathInfo.split("/");
 
-    //     if (pathInfoSplits.length == 2) {
-    //         String idPizza = pathInfoSplits[1];
-    //         String ingredientInfo = new BufferedReader(new InputStreamReader(req.getInputStream())).readLine();
-    //         String idIngredient = objMapper.readValue(ingredientInfo, String.class);
-    //         if (pizzaDAO.addIngredient(Integer.parseInt(idPizza), Integer.parseInt(idIngredient))) {
-    //             res.sendError(HttpServletResponse.SC_CREATED);  
-    //         } else {
-    //             res.sendError(HttpServletResponse.SC_CONFLICT);
-    //         }
-    //         return;
-    //     }
-    //     else {
-    //         String pizzaInfos = new BufferedReader(new InputStreamReader(req.getInputStream())).readLine();
-    //         Pizza pizza = objMapper.readValue(pizzaInfos, Pizza.class);
-    //         if (pizzaDAO.savePizza(pizza)) {
-    //             res.sendError(HttpServletResponse.SC_CREATED);  
-    //         } else {
-    //             res.sendError(HttpServletResponse.SC_CONFLICT);
-    //         }
-    //         return;
-    //     }
-    // }
+        if (pathInfoSplits.length == 2) {
+            String idPizza = pathInfoSplits[1];
+            String ingredientInfo = new BufferedReader(new InputStreamReader(req.getInputStream())).readLine();
+            Ingredient ingredient = objMapper.readValue(ingredientInfo, Ingredient.class);
+            if (pizzaDAO.addIngredient(Integer.parseInt(idPizza), ingredient)) {
+                res.sendError(HttpServletResponse.SC_CREATED);  
+            } else {
+                res.sendError(HttpServletResponse.SC_CONFLICT);
+            }
+            return;
+        }
+        else {
+            String pizzaInfos = new BufferedReader(new InputStreamReader(req.getInputStream())).readLine();
+            Pizza pizza = objMapper.readValue(pizzaInfos, Pizza.class);
+            if (pizzaDAO.savePizza(pizza)) {
+                res.sendError(HttpServletResponse.SC_CREATED);  
+            } else {
+                res.sendError(HttpServletResponse.SC_CONFLICT);
+            }
+            return;
+        }
+    }
 
     public void doDelete (HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 

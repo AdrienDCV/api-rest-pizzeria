@@ -122,21 +122,14 @@ public class CommandeDAO {
                 pstmtInsertCommande.setDate(3, commande.getDate());
                 pstmtInsertCommande.executeUpdate();
 
-                PreparedStatement pstmtInsertPizzas = con.prepareStatement("INSERT INTO commandepizza VALUES(?,?)");
                 List<Pizza> pizzasList =  commande.getPizzasList();
-                pstmtInsertPizzas.setInt(1, commande.getIdCommande());
                 for (Pizza pizza : pizzasList) {
-                    pstmtInsertPizzas.setInt(2,pizza.getId());
-                    for (Integer idIngredient : pizza.getIdsIngredientsList()) {
-                        pizzaDAO.addIngredient(pizza.getId(), idIngredient);
+                    for (Ingredient ingredient : pizza.getIngredientsList()) {
+                        pizzaDAO.addIngredient(pizza.getId(), ingredient);
                     }
-                    pstmtInsertPizzas.addBatch();
-                }
-                int[] inserts = pstmtInsertPizzas.executeBatch();
-                if (inserts != null) {
-                    saved = true;
-                }         
-
+                }    
+                
+                saved = true;
             }
         }
         catch (Exception e) {
