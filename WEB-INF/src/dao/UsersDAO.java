@@ -9,9 +9,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import dto.Ingredient;
-import dto.Pizza;
-import dto.TypePate;
 import dto.Users;
 
 public class UsersDAO {
@@ -37,7 +34,7 @@ public class UsersDAO {
             ResultSet rs = stmt.executeQuery("SELECT * FROM users");
 
             while(rs.next()){
-               usersList.add(this.findById(rs.getInt("id")));
+               usersList.add(this.findByLogs(rs.getString("login"), rs.getString("password")));
             }
         }
         catch (Exception e) {
@@ -55,42 +52,18 @@ public class UsersDAO {
         
     }
     
-    public Users findById(int id) {
-    	Users user = null;
-    	try {
-    		PreparedStatement pstmtSelect = con.prepareStatement("SELECT * FROM users WHERE idclient =?");
-    		pstmtSelect.setInt(1, id);
-    		ResultSet rs = pstmtSelect.executeQuery();
-    		
-    		if (rs.next()) {
-    			user = new Users(id, rs.getString("name"), rs.getString("password"), rs.getString("token"), rs.getString("address"), rs.getString("tel"));
-                }
-            }
-            
-    	catch (Exception e) {    
-    		e.printStackTrace();   
-    	}
-    	finally {
-    		try {
-    			con.close();
-    		} catch (SQLException e) {
-    			e.printStackTrace();   
-    		}
-    	}
-            
-    	return user;
-    }
     
-    public Users findByLogs(String login,String mdp) {
+    public Users findByLogs(String login,String password) {
     	Users user = null;
     	try {
-    		PreparedStatement pstmtSelect = con.prepareStatement("SELECT * FROM users WHERE name=? mdp=?");
+    		PreparedStatement pstmtSelect = con.prepareStatement("SELECT * FROM clients WHERE login=? AND password=?");
     		pstmtSelect.setString(1, login);
-    		pstmtSelect.setString(2, mdp);
+    		pstmtSelect.setString(2, password);
+			System.out.println(pstmtSelect.toString());
     		ResultSet rs = pstmtSelect.executeQuery();
     		
     		if (rs.next()) {
-    			user = new Users(rs.getInt("idclient"), rs.getString("name"), rs.getString("password"), rs.getString("token"), rs.getString("address"), rs.getString("tel"));
+    				user = new Users(rs.getInt("idclient"), login, password, rs.getString("email"), rs.getString("address"), rs.getString("tel"));
                 }
             }
             
@@ -107,42 +80,5 @@ public class UsersDAO {
             
     	return user;
     }
-    
-    public List<String> getAllToken(){
-    	List<String> tokenList=new ArrayList<String>();
-		List<Users> usersList=this.findAll();
-		for(int i=0;i<usersList.size();i++) {
-			if(usersList.get(i).getToken()!=null) {
-				tokenList.add(usersList.get(i).getToken());
-			}
-		}
-    	return tokenList;
-    }
-    
-    public String getTokenByUserId(int id) {
-    	return this.findById(id).getToken();
-    }
-    
-    public void saveToken(Users user, String token){
-    	
-    	try {
-    		user.setToken(token);
-    		PreparedStatement pstmtUpdate=con.prepareStatement("SET token=? FROM users WHERE idclient=?");
-    		pstmtUpdate.setString(1, token);
-    		pstmtUpdate.setInt(2, user.getIdclient());
-    		pstmtUpdate.executeUpdate();
-    	}
-            
-    	catch (Exception e) {    
-    		e.printStackTrace();   
-    	}
-    	finally {
-    		try {
-    			con.close();
-    		} catch (SQLException e) {
-    			e.printStackTrace();   
-    		}
-    	}
-            
-    }
+
 }

@@ -16,13 +16,10 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 public class JwtManager {
-    // pour SHA256 : 256 bits mini
-    //private static final String SECRET_KEY = "bachibouzoukbachibouzoukbachibouzoukbachibouzouk";
-	private String secretKey;
+    // pour SHA256 : 256 bits mini           
+    private static final String SECRET_KEY = "SAeS4A021ArchiLogiWebBackEndBUTInformatique20222023";
 	
-	public JwtManager(String secretKey) {
-		this.secretKey=secretKey;
-	}
+
 	
     public  String createJWT() {
         // The JWT signature algorithm we will be using to sign the token
@@ -31,15 +28,15 @@ public class JwtManager {
         Date now = new Date(nowMillis);
 
         // We will sign our JWT with our ApiKey secret
-        byte[] apiKeySecretBytes = Base64.getDecoder().decode(secretKey);
+        byte[] apiKeySecretBytes = Base64.getDecoder().decode(SECRET_KEY);
         Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
 
         // Let's set the JWT Claims
         JwtBuilder token = Jwts.builder()
                 .setId(UUID.randomUUID().toString().replace("-", ""))
                 .setIssuedAt(now)
-                .setSubject("Authentification pour tp333")
-                .setIssuer("philippe.mathieu@univ-lille.fr")
+                .setSubject("Authentification API REST Pizzeria")
+                .setIssuer("SAéR4A02")
                 .signWith(signingKey, signatureAlgorithm);
 
         // if it has been specified, let's add the expiration
@@ -56,7 +53,7 @@ public class JwtManager {
     public Claims decodeJWT(String jwt) throws Exception {
         // This line will throw an exception if it is not a signed JWS (as expected)
         Claims claims = Jwts.parserBuilder()
-                .setSigningKey(Base64.getDecoder().decode(secretKey))
+                .setSigningKey(Base64.getDecoder().decode(SECRET_KEY))
                 .build()
                 // verifie la signature et l'iat
                 .parseClaimsJws(jwt).getBody();

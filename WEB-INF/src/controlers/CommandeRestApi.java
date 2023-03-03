@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dao.CommandeDAO;
+import dao.JwtManager;
 import dto.Commande;
 
 @WebServlet("/commandes/*")
@@ -22,6 +23,7 @@ public class CommandeRestApi extends HttpServlet{
     // attributes
     CommandeDAO commandeDAO = new CommandeDAO();
     ObjectMapper objMapper = new ObjectMapper();
+    JwtManager jwtManager = new JwtManager();
     
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         res.setContentType("application/json;charset=UTF-8");
@@ -37,7 +39,7 @@ public class CommandeRestApi extends HttpServlet{
         }
         
         String[] pathInfoSplits = pathInfo.split("/");
-        if (pathInfoSplits.length < 0 && pathInfoSplits.length < 3) {
+        if (pathInfoSplits.length > 3) {
             res.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -69,16 +71,24 @@ public class CommandeRestApi extends HttpServlet{
 
     public void doPost (HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
-        res.setContentType("application/json;charset=UTF-8");
+        try {
+            jwtManager.decodeJWT(req.getHeader("Authorization"));
 
-        String commandeInfos = new BufferedReader(new InputStreamReader(req.getInputStream())).readLine();
-        Commande commande = objMapper.readValue(commandeInfos, Commande.class);
-        if (commandeDAO.save(commande)) {
-            res.sendError(HttpServletResponse.SC_CREATED);  
-        } else {
-            res.sendError(HttpServletResponse.SC_CONFLICT);
+            res.setContentType("application/json;charset=UTF-8");
+
+            String commandeInfos = new BufferedReader(new InputStreamReader(req.getInputStream())).readLine();
+            Commande commande = objMapper.readValue(commandeInfos, Commande.class);
+            if (commandeDAO.save(commande)) {
+                res.sendError(HttpServletResponse.SC_CREATED);  
+            } else {
+                res.sendError(HttpServletResponse.SC_CONFLICT);
+            }
+            return;
         }
-        return;
+        catch (Exception e) {
+            res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
     }
 
 }

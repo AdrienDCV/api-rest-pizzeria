@@ -3,9 +3,9 @@ package dto;
 public class Users {
 
 	private int idclient;
-	private String name;
+	private String login;
 	private String password;
-	private String token;
+	private String email;
 	private String address;
 	private String tel;
 	
@@ -13,11 +13,11 @@ public class Users {
 	public Users() {
 		
 	}
-	public Users(int id,String name,String password, String token,String address,String tel) {
+	public Users(int id,String login,String password, String email,String address,String tel) {
 		this.idclient=id;
-		this.name=name;
+		this.login=login;
 		this.password=password;
-		this.token=token;
+		this.email=email;
 		this.address=address;
 		this.tel=tel;
 	}
@@ -29,12 +29,12 @@ public class Users {
 		this.idclient = idclient;
 	}
 	
-	public String getName() {
-		return name;
+	public String getLogin() {
+		return login;
 	}
 	
-	public void setName(String name) {
-		this.name = name;
+	public void setLogin(String login) {
+		this.login = login;
 	}
 	
 	public String getPassword() {
@@ -45,12 +45,12 @@ public class Users {
 		this.password = password;
 	}
 	
-	public String getToken() {
-		return token;
+	public String getEmail() {
+		return email;
 	}
 	
-	public void setToken(String token) {
-		this.token = token;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 	
 	public String getAddress() {

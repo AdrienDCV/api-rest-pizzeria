@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dao.IngredientDAO;
+import dao.JwtManager;
 import dto.Ingredient;
 
 
@@ -22,6 +23,7 @@ public class IngredientsRestApi extends HttpServlet {
     // attributes
     IngredientDAO ingDAO = new IngredientDAO();
     ObjectMapper objMapper = new ObjectMapper();
+    JwtManager jwtManager = new JwtManager();
 
     // methods
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
@@ -38,7 +40,7 @@ public class IngredientsRestApi extends HttpServlet {
         }
 
         String[] pathInfoSplits = pathInfo.split("/");
-        if (pathInfoSplits.length < 0 && pathInfoSplits.length < 3) {
+        if (pathInfoSplits.length > 3) {
             res.sendError(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -69,37 +71,53 @@ public class IngredientsRestApi extends HttpServlet {
 
     public void doPost (HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
-        res.setContentType("application/json;charset=UTF-8");
+        try {
+            jwtManager.decodeJWT(req.getHeader("Authorization"));
 
-        String ingredientInfos = new BufferedReader(new InputStreamReader(req.getInputStream())).readLine();
-        Ingredient ingredient = objMapper.readValue(ingredientInfos, Ingredient.class);
-        if (ingDAO.save(ingredient)) {
-            res.sendError(HttpServletResponse.SC_CREATED);  
-        } else {
-            res.sendError(HttpServletResponse.SC_CONFLICT);
+            res.setContentType("application/json;charset=UTF-8");
+
+            String ingredientInfos = new BufferedReader(new InputStreamReader(req.getInputStream())).readLine();
+            Ingredient ingredient = objMapper.readValue(ingredientInfos, Ingredient.class);
+            if (ingDAO.save(ingredient)) {
+                res.sendError(HttpServletResponse.SC_CREATED);  
+            } else {
+                res.sendError(HttpServletResponse.SC_CONFLICT);
+            }
         }
-        
+        catch (Exception e) {
+            res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
 
     }
 
     public void doDelete (HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 
-        res.setContentType("application/json;charset=UTF-8");
+        try {
+            jwtManager.decodeJWT(req.getHeader("Authorization"));
 
-        String pathInfo = req.getPathInfo();
-        String[] pathInfoSplits = pathInfo.split("/");
-        if (pathInfoSplits.length != 2) {
-            res.sendError(HttpServletResponse.SC_BAD_REQUEST);
+            res.setContentType("application/json;charset=UTF-8");
+
+            String pathInfo = req.getPathInfo();
+            String[] pathInfoSplits = pathInfo.split("/");
+            if (pathInfoSplits.length != 2) {
+                res.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
+    
+            String id = pathInfoSplits[1];
+            if (ingDAO.delete(Integer.parseInt(id))) {
+                res.sendError(HttpServletResponse.SC_OK);
+                return;
+            } else {
+                res.sendError(HttpServletResponse.SC_NOT_FOUND);      
+                return;
+            }
+        }
+        catch (Exception e) {
+            res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-
-        String id = pathInfoSplits[1];
-        if (ingDAO.delete(Integer.parseInt(id))) {
-            res.sendError(HttpServletResponse.SC_OK);
-        } else {
-            res.sendError(HttpServletResponse.SC_NOT_FOUND);      
-        }
-
 
     }
     
