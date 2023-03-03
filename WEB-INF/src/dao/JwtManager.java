@@ -19,8 +19,6 @@ public class JwtManager {
     // pour SHA256 : 256 bits mini           
     private static final String SECRET_KEY = "SAeS4A021ArchiLogiWebBackEndBUTInformatique20222023";
 	
-
-	
     public  String createJWT() {
         // The JWT signature algorithm we will be using to sign the token
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;

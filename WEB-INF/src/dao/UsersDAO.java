@@ -1,7 +1,6 @@
 package dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,24 +11,19 @@ import java.util.List;
 import dto.Users;
 
 public class UsersDAO {
+
+    private DS ds;
 	private Connection con;
 
     public UsersDAO() {
-        try {
-            Class.forName("org.postgresql.Driver");
-            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
-
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.ds = new DS();
     }
 
     public List<Users> findAll() {
         List<Users> usersList = new ArrayList<>();
 
         try {
-
+            con = ds.getConnection();
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM users");
 
@@ -56,10 +50,10 @@ public class UsersDAO {
     public Users findByLogs(String login,String password) {
     	Users user = null;
     	try {
+            con = ds.getConnection();
     		PreparedStatement pstmtSelect = con.prepareStatement("SELECT * FROM clients WHERE login=? AND password=?");
     		pstmtSelect.setString(1, login);
     		pstmtSelect.setString(2, password);
-			System.out.println(pstmtSelect.toString());
     		ResultSet rs = pstmtSelect.executeQuery();
     		
     		if (rs.next()) {

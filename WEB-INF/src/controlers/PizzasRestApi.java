@@ -153,7 +153,6 @@ public class PizzasRestApi extends HttpServlet{
     
     public void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         
-        System.out.println(req.getMethod().toString());
         if (req.getMethod().equalsIgnoreCase("PATCH")) {
             this.doPatch(req, res);
         } else {

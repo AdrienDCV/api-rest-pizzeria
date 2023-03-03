@@ -9,17 +9,11 @@ import dto.Ingredient;
 public class IngredientDAO {
     
     // attributes 
+    private DS ds;
     private Connection con;
 
     public IngredientDAO() {
-        try {
-            Class.forName("org.postgresql.Driver");
-            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
-
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.ds = new DS();
     }
 
     // methods
@@ -27,8 +21,7 @@ public class IngredientDAO {
         List<Ingredient> ingredientsList = new ArrayList<>();
 
         try {
-            Class.forName("org.postgresql.Driver");
-            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+            this.con = ds.getConnection();
 
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM ingredients");
@@ -57,8 +50,7 @@ public class IngredientDAO {
         Ingredient ingredient = null;
 
         try {
-            Class.forName("org.postgresql.Driver");
-            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+            this.con = ds.getConnection();
 
             PreparedStatement pstmtSelect = con.prepareStatement("SELECT * FROM ingredients WHERE id =?");
             pstmtSelect.setInt(1, id);
@@ -86,8 +78,7 @@ public class IngredientDAO {
 
         try {
             if (this.findById(id) != null) {
-                Class.forName("org.postgresql.Driver");
-                this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+                this.con = ds.getConnection();
 
                 PreparedStatement pstmtDelete = con.prepareStatement("DELETE FROM ingredients WHERE id=?");
                 pstmtDelete.setInt(1, id);
@@ -114,8 +105,7 @@ public class IngredientDAO {
 
         try {
             if (this.findById(ingredient.getId()) == null) {
-                Class.forName("org.postgresql.Driver");
-                this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+                this.con = ds.getConnection();
 
                 PreparedStatement pstmtInsert = con.prepareStatement("INSERT INTO ingredients VALUES(?,?,?)");
                 pstmtInsert.setInt(1, ingredient.getId());

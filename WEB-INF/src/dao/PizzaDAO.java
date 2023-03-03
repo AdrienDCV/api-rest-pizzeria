@@ -11,17 +11,11 @@ import dto.TypePate;
 public class PizzaDAO {
     
     // attributes 
+    private DS ds;
     private Connection con;
 
     public PizzaDAO() {
-        try {
-            Class.forName("org.postgresql.Driver");
-            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
-
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.ds = new DS();
     }
     
 
@@ -31,8 +25,7 @@ public class PizzaDAO {
 
         
         try {
-            Class.forName("org.postgresql.Driver");
-            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+            this.con = ds.getConnection();
 
             Statement stmtPizzas = con.createStatement();
             ResultSet rsBasePizza = stmtPizzas.executeQuery("SELECT * FROM basepizza");
@@ -68,9 +61,8 @@ public class PizzaDAO {
     public Pizza findById(int id) {
         Pizza pizza = null;
 
-        try {
-            Class.forName("org.postgresql.Driver");
-            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+        try {   
+            this.con = ds.getConnection();
 
             PreparedStatement pstmtSelectBasePizza = con.prepareStatement("SELECT * FROM basepizza WHERE id=?");
             pstmtSelectBasePizza.setInt(1, id);
@@ -123,8 +115,7 @@ public class PizzaDAO {
 
         try {
             if (this.findById(id) != null) {
-                Class.forName("org.postgresql.Driver");
-                this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+                this.con = ds.getConnection();
 
                 
                 PreparedStatement pstmtDeletePizza = con.prepareStatement("DELETE FROM pizza WHERE idbasepizza=?");
@@ -162,8 +153,7 @@ public class PizzaDAO {
         try {
             Pizza pizza = this.findById(idPizza);
             if (pizza != null) {
-                Class.forName("org.postgresql.Driver");
-                this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+                this.con = ds.getConnection();
 
                 PreparedStatement pstmtDeleteIngrediStatement = con.prepareStatement("DELETE FROM pizza WHERE idbasepizza=? AND idingredient=?");
                 pstmtDeleteIngrediStatement.setInt(1, pizza.getId());
@@ -192,13 +182,10 @@ public class PizzaDAO {
 
     public boolean savePizza(Pizza pizza) {
         boolean saved = false;
-        System.out.println(pizza);
 
         try {
             if (this.findById(pizza.getId()) == null) {
-                System.out.println("passe par là !");
-                Class.forName("org.postgresql.Driver");
-                this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+                this.con = ds.getConnection();
 
                 // ajout basepizza
                 PreparedStatement pstmtInsertPizza = con.prepareStatement("INSERT INTO basepizza VALUES(?,?,?,?)");
@@ -212,7 +199,6 @@ public class PizzaDAO {
 
                 // ajout ingrédients
                 if (pizza.getIdsIngredientsList() != null) {
-                    System.out.println("passe aussi par là !");
                     PreparedStatement pstmtInsertIngredients = con.prepareStatement("INSERT INTO pizza VALUES(?,?)");
                     List<Integer> idsIngredientsList =  pizza.getIdsIngredientsList();
                     pstmtInsertIngredients.setInt(1, pizza.getId());
@@ -248,10 +234,7 @@ public class PizzaDAO {
             Pizza pizza = this.findById(idPizza);
 
             if (pizza != null) {
-                Class.forName("org.postgresql.Driver");
-                this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
-
-
+                this.con = ds.getConnection();
 
                 if (!pizza.getIngredientsList().contains(ingredient)) {
                     PreparedStatement pstmtInsertIngredients = con.prepareStatement("INSERT INTO pizza VALUES(?, ?)");
@@ -281,10 +264,8 @@ public class PizzaDAO {
     public double getFinalPrice(Pizza pizza) {
         double finalPrice = 0;
 
-
         try {
-            Class.forName("org.postgresql.Driver");
-            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+            this.con = ds.getConnection();
 
             finalPrice += pizza.getPrixBase();
             Statement stmtPriceIngredients = con.createStatement();
@@ -316,17 +297,14 @@ public class PizzaDAO {
 
         try {
             Pizza oldPizza = this.findById(idPizza);
-            Class.forName("org.postgresql.Driver");
-            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
-            // update de la pizza de base
+            this.con = ds.getConnection();
+
             PreparedStatement pstmtUpdateBasePizza = con.prepareStatement("UPDATE basepizza SET name=?, typepate=?, prixbase=? WHERE id=?");
             pstmtUpdateBasePizza.setInt(4, idPizza); 
 
-            // update des ingrédients
             PreparedStatement pstmtUpdateIngredients = con.prepareStatement("UPDATE pizza SET idingredient=? WHERE idbasepizza=?");
             pstmtUpdateIngredients.setInt(2, idPizza); 
 
-            // comparaison des différentes attributs
             if (oldPizza != null && newPizza != null) {
                 if (!oldPizza.getName().equals(newPizza.getName()) && newPizza.getName() != null) {
                     pstmtUpdateBasePizza.setString(1, newPizza.getName());
@@ -360,9 +338,7 @@ public class PizzaDAO {
                         pstmtUpdateIngredients.addBatch();
                     }
                 }
-
             }
-            System.out.println(pstmtUpdateBasePizza.toString());
             pstmtUpdateBasePizza.executeUpdate();
             pstmtUpdateIngredients.executeBatch();
             updated = true;

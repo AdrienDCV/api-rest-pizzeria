@@ -24,8 +24,6 @@ public class UsersRestApi extends HttpServlet{
 
         String login = req.getParameter("login");
         String password = req.getParameter("pwd");
-        
-        System.out.println(password);
    
         String token = null;
         if (usersDAO.findByLogs(login, password) != null) {
@@ -35,9 +33,8 @@ public class UsersRestApi extends HttpServlet{
             return;
         } else {
             out.println("Utilisateur inconnu : accès interdit.");
+            return;
         }
-
-        return;
     }
 
     
