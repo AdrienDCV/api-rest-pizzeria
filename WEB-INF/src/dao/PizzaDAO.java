@@ -338,7 +338,6 @@ public class PizzaDAO {
                         pstmtInsertIngredients.addBatch();
                     }
                 } else {
-                    System.out.println("icicicicicicici");
                     for (Ingredient ingredient : oldPizza.getIngredientsList()) {
                         pstmtInsertIngredients.setInt(2, ingredient.getId());
                         pstmtInsertIngredients.addBatch();
