@@ -122,7 +122,7 @@ public class PizzaDAO {
                 pstmtDeletePizza.setInt(1, id);
                 pstmtDeletePizza.executeUpdate();
                 
-                PreparedStatement pstmtDeleteCommande = con.prepareStatement("DELETE FROM commandespizzas WHERE idbasepizza=?");
+                PreparedStatement pstmtDeleteCommande = con.prepareStatement("DELETE FROM commandespizzas WHERE idpizza=?");
                 pstmtDeleteCommande.setInt(1, id);
                 pstmtDeleteCommande.executeUpdate();
 
@@ -171,7 +171,7 @@ public class PizzaDAO {
         finally {
             try {
                 con.close();
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
