@@ -2,6 +2,7 @@ package controlers;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.http.HttpResponse;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -32,6 +33,7 @@ public class UsersRestApi extends HttpServlet{
             out.println(token);
             return;
         } else {
+            res.sendError(HttpServletResponse.SC_NOT_FOUND);
             out.println("Utilisateur inconnu : accès interdit.");
             return;
         }

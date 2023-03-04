@@ -272,7 +272,7 @@ public class PizzaDAO {
             for (Integer idingredient : pizza.getIdsIngredientsList()) {
                 ResultSet rsPriceIngredients = stmtPriceIngredients.executeQuery("SELECT price FROM ingredients WHERE idingredient=" + idingredient);
                 if (rsPriceIngredients.next()) {
-                    finalPrice += rsPriceIngredients.getFloat("price");
+                    finalPrice += (double) rsPriceIngredients.getFloat("price");
                 }
             }
 

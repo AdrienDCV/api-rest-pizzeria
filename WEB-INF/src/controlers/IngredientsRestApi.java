@@ -60,10 +60,12 @@ public class IngredientsRestApi extends HttpServlet {
         }
 
         // GET name
-        if (pathInfoSplits.length == 3) {
+        if (pathInfoSplits.length == 3 && pathInfo.endsWith("name")) {
             String jsonString = objMapper.writeValueAsString(ingredient.getName());
             out.print(jsonString);
             return;
+        } else {
+            res.sendError(HttpServletResponse.SC_BAD_REQUEST);
         }
 
         return;

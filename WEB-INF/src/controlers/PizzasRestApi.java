@@ -56,14 +56,16 @@ public class PizzasRestApi extends HttpServlet{
         if (pathInfoSplits.length == 2) {
             String jsonString = objMapper.writeValueAsString(pizza);
             out.print(jsonString);
+            res.sendError(HttpServletResponse.SC_OK);
             return;
         }
 
         // GET prix final
-        if (pathInfoSplits.length == 3 && pathInfoSplits[2].equals("prixfinal")) {
+        if (pathInfoSplits.length == 3 && pathInfo.endsWith("prixfinal")) {
             double finalPrice = pizzaDAO.getFinalPrice(pizza);
             String jsonString = objMapper.writeValueAsString(finalPrice);
             out.print(jsonString);
+            res.sendError(HttpServletResponse.SC_OK);
             return;
         }
 
