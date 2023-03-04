@@ -56,7 +56,6 @@ public class PizzasRestApi extends HttpServlet{
         if (pathInfoSplits.length == 2) {
             String jsonString = objMapper.writeValueAsString(pizza);
             out.print(jsonString);
-            res.sendError(HttpServletResponse.SC_OK);
             return;
         }
 
@@ -65,7 +64,6 @@ public class PizzasRestApi extends HttpServlet{
             double finalPrice = pizzaDAO.getFinalPrice(pizza);
             String jsonString = objMapper.writeValueAsString(finalPrice);
             out.print(jsonString);
-            res.sendError(HttpServletResponse.SC_OK);
             return;
         }
 
@@ -180,12 +178,13 @@ public class PizzasRestApi extends HttpServlet{
                 if (pizzaDAO.updatePizza(Integer.parseInt(id), newPizza)) {
                     res.sendError(HttpServletResponse.SC_OK);
                 } else {
-                    res.sendError(HttpServletResponse.SC_NOT_FOUND);      
+                    res.sendError(HttpServletResponse.SC_CONFLICT);      
                 }
             }
             return;
         }
         catch (Exception e) {
+            e.printStackTrace();
             res.sendError(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }

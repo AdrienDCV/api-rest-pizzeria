@@ -63,8 +63,8 @@ public class IngredientDAO {
             e.printStackTrace();
         }
         finally {
-             try {
-            con.close();
+            try {
+                con.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }

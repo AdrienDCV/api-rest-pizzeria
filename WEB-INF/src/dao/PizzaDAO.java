@@ -83,8 +83,8 @@ public class PizzaDAO {
             e.printStackTrace();
         }
         finally {
-             try {
-            con.close();
+            try {
+                con.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -198,15 +198,15 @@ public class PizzaDAO {
                 }
 
                 // ajout ingrédients
-                if (pizza.getIdsIngredientsList() != null) {
+                if (pizza.getIngredientsList() != null) {
                     PreparedStatement pstmtInsertIngredients = con.prepareStatement("INSERT INTO pizzas VALUES(?,?)");
-                    List<Integer> idsIngredientsList =  pizza.getIdsIngredientsList();
+                    List<Ingredient> ingredientsList =  pizza.getIngredientsList();
                     pstmtInsertIngredients.setInt(1, pizza.getId());
-                    for (Integer pizzaId : idsIngredientsList) {
-                        pstmtInsertIngredients.setInt(2,pizzaId);
+                    for (Ingredient ingredient : ingredientsList) {
+                        pstmtInsertIngredients.setInt(2,ingredient.getId());
                         pstmtInsertIngredients.addBatch();
                     }
-                    if (pstmtInsertIngredients.executeBatch().length < 0) {
+                    if (pstmtInsertIngredients.executeBatch().length > 0) {
                         saved = true;
                     } 
                 }
@@ -302,8 +302,12 @@ public class PizzaDAO {
             PreparedStatement pstmtUpdateBasePizza = con.prepareStatement("UPDATE basespizzas SET name=?, typepate=?, prixbase=? WHERE idbasepizza=?");
             pstmtUpdateBasePizza.setInt(4, idPizza); 
 
-            PreparedStatement pstmtUpdateIngredients = con.prepareStatement("UPDATE pizzas SET idingredient=? WHERE idbasepizza=?");
-            pstmtUpdateIngredients.setInt(2, idPizza); 
+            PreparedStatement pstmtDeleteIngredients = con.prepareStatement("DELETE FROM pizzas WHERE idbasepizza=?");
+            pstmtDeleteIngredients.setInt(1, idPizza);  
+            pstmtDeleteIngredients.executeUpdate();
+
+            PreparedStatement pstmtInsertIngredients = con.prepareStatement("INSERT INTO pizzas VALUES (?,?)");
+            pstmtInsertIngredients.setInt(1, idPizza); 
 
             if (oldPizza != null && newPizza != null) {
                 if (!oldPizza.getName().equals(newPizza.getName()) && newPizza.getName() != null) {
@@ -327,20 +331,22 @@ public class PizzaDAO {
                     pstmtUpdateBasePizza.setDouble(3, oldPizza.getPrixBase());
                 }
                 
+
                 if (oldPizza.getIngredientsList().equals(newPizza.getIngredientsList())) {
-                    for (Integer idIngredient : newPizza.getIdsIngredientsList()) {
-                        pstmtUpdateIngredients.setInt(1, idIngredient);
-                        pstmtUpdateIngredients.addBatch();
+                    for (Ingredient ingredient : newPizza.getIngredientsList()) {
+                        pstmtInsertIngredients.setInt(2, ingredient.getId());
+                        pstmtInsertIngredients.addBatch();
                     }
                 } else {
-                    for (Integer idIngredient : oldPizza.getIdsIngredientsList()) {
-                        pstmtUpdateIngredients.setInt(1, idIngredient);
-                        pstmtUpdateIngredients.addBatch();
+                    System.out.println("icicicicicicici");
+                    for (Ingredient ingredient : oldPizza.getIngredientsList()) {
+                        pstmtInsertIngredients.setInt(2, ingredient.getId());
+                        pstmtInsertIngredients.addBatch();
                     }
                 }
             }
             pstmtUpdateBasePizza.executeUpdate();
-            pstmtUpdateIngredients.executeBatch();
+            pstmtInsertIngredients.executeBatch();
             updated = true;
         }
         catch (Exception e) {

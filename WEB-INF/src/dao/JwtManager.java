@@ -38,7 +38,7 @@ public class JwtManager {
                 .signWith(signingKey, signatureAlgorithm);
 
         // if it has been specified, let's add the expiration
-        long ttlMillis = 1000 * 60 * 60; // 60mn
+        long ttlMillis = 1000 * 60 * 4; // 60mn
         if (ttlMillis > 0) {
             long expMillis = nowMillis + ttlMillis;
             Date exp = new Date(expMillis);
