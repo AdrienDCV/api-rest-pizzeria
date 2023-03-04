@@ -27,7 +27,7 @@ public class IngredientDAO {
             ResultSet rs = stmt.executeQuery("SELECT * FROM ingredients");
 
             while(rs.next()){
-               ingredientsList.add(this.findById(rs.getInt("id")));
+               ingredientsList.add(this.findById(rs.getInt("idingredient")));
             }
         }
         catch (Exception e) {
@@ -52,7 +52,7 @@ public class IngredientDAO {
         try {
             this.con = ds.getConnection();
 
-            PreparedStatement pstmtSelect = con.prepareStatement("SELECT * FROM ingredients WHERE id =?");
+            PreparedStatement pstmtSelect = con.prepareStatement("SELECT * FROM ingredients WHERE idingredient=?");
             pstmtSelect.setInt(1, id);
             ResultSet rs = pstmtSelect.executeQuery();
             if (rs.next()) {
@@ -80,7 +80,7 @@ public class IngredientDAO {
             if (this.findById(id) != null) {
                 this.con = ds.getConnection();
 
-                PreparedStatement pstmtDelete = con.prepareStatement("DELETE FROM ingredients WHERE id=?");
+                PreparedStatement pstmtDelete = con.prepareStatement("DELETE FROM ingredients WHERE idingredient=?");
                 pstmtDelete.setInt(1, id);
                 pstmtDelete.executeUpdate();
                 deleted = true;

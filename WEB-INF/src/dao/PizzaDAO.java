@@ -28,14 +28,14 @@ public class PizzaDAO {
             this.con = ds.getConnection();
 
             Statement stmtPizzas = con.createStatement();
-            ResultSet rsBasePizza = stmtPizzas.executeQuery("SELECT * FROM basepizza");
+            ResultSet rsBasePizza = stmtPizzas.executeQuery("SELECT * FROM basespizzas");
 
             while(rsBasePizza.next()){
-                pizzasList.add(new Pizza(rsBasePizza.getInt("id"), rsBasePizza.getString("name"), TypePate.get(rsBasePizza.getString("typePate")), rsBasePizza.getFloat("prixBase"), new ArrayList<>(), new ArrayList<>()));
+                pizzasList.add(new Pizza(rsBasePizza.getInt("idbasepizza"), rsBasePizza.getString("name"), TypePate.get(rsBasePizza.getString("typePate")), rsBasePizza.getFloat("prixBase"), new ArrayList<>(), new ArrayList<>()));
             }
 
-            PreparedStatement pstmtIdsIngredients = con.prepareStatement("SELECT idingredient FROM pizza WHERE idbasepizza=?");
-            PreparedStatement pstmtIngredients = con.prepareStatement("SELECT * FROM ingredients WHERE id=?");
+            PreparedStatement pstmtIdsIngredients = con.prepareStatement("SELECT idingredient FROM pizzas WHERE idbasepizza=?");
+            PreparedStatement pstmtIngredients = con.prepareStatement("SELECT * FROM ingredients WHERE idingredient=?");
             for (Pizza pizza : pizzasList) {
                 pstmtIdsIngredients.setInt(1, pizza.getId());
                 retrieveIngredients(pizza, pstmtIdsIngredients, pstmtIngredients);
@@ -64,15 +64,15 @@ public class PizzaDAO {
         try {   
             this.con = ds.getConnection();
 
-            PreparedStatement pstmtSelectBasePizza = con.prepareStatement("SELECT * FROM basepizza WHERE id=?");
+            PreparedStatement pstmtSelectBasePizza = con.prepareStatement("SELECT * FROM basespizzas WHERE idbasepizza=?");
             pstmtSelectBasePizza.setInt(1, id);
             ResultSet rsBasePizza = pstmtSelectBasePizza.executeQuery();
 
             if(rsBasePizza.next()){
-                pizza = new Pizza(rsBasePizza.getInt("id"), rsBasePizza.getString("name"), TypePate.get(rsBasePizza.getString("typePate")), rsBasePizza.getFloat("prixBase"), new ArrayList<>(), new ArrayList<>());
+                pizza = new Pizza(rsBasePizza.getInt("idbasepizza"), rsBasePizza.getString("name"), TypePate.get(rsBasePizza.getString("typePate")), rsBasePizza.getFloat("prixBase"), new ArrayList<>(), new ArrayList<>());
             
-                PreparedStatement pstmtIdsIngredients = con.prepareStatement("SELECT idingredient FROM pizza WHERE idbasepizza=?");
-                PreparedStatement pstmtIngredients = con.prepareStatement("SELECT * FROM ingredients WHERE id=?");
+                PreparedStatement pstmtIdsIngredients = con.prepareStatement("SELECT idingredient FROM pizzas WHERE idbasepizza=?");
+                PreparedStatement pstmtIngredients = con.prepareStatement("SELECT * FROM ingredients WHERE idingredient=?");
                 pstmtIdsIngredients.setInt(1, id);
                 retrieveIngredients(pizza, pstmtIdsIngredients, pstmtIngredients);
             } 
@@ -103,7 +103,7 @@ public class PizzaDAO {
             pstmtIngredients.setInt(1, rsIdsIngredients.getInt("idingredient"));
             ResultSet rsIngredients = pstmtIngredients.executeQuery();
             if (rsIngredients.next()) {
-                ingredientsList.add(new Ingredient(rsIngredients.getInt("id"), rsIngredients.getString("name"), rsIngredients.getFloat("price")));
+                ingredientsList.add(new Ingredient(rsIngredients.getInt("idingredient"), rsIngredients.getString("name"), rsIngredients.getFloat("price")));
             }
         }   
         pizza.setIdsIngredientsList(idsIngredientsList);
@@ -118,15 +118,15 @@ public class PizzaDAO {
                 this.con = ds.getConnection();
 
                 
-                PreparedStatement pstmtDeletePizza = con.prepareStatement("DELETE FROM pizza WHERE idbasepizza=?");
+                PreparedStatement pstmtDeletePizza = con.prepareStatement("DELETE FROM pizzas WHERE idbasepizza=?");
                 pstmtDeletePizza.setInt(1, id);
                 pstmtDeletePizza.executeUpdate();
                 
-                PreparedStatement pstmtDeleteCommande = con.prepareStatement("DELETE FROM commandepizza WHERE idpizza=?");
+                PreparedStatement pstmtDeleteCommande = con.prepareStatement("DELETE FROM commandespizzas WHERE idbasepizza=?");
                 pstmtDeleteCommande.setInt(1, id);
                 pstmtDeleteCommande.executeUpdate();
 
-                PreparedStatement pstmtDeleteBasePizza = con.prepareStatement("DELETE FROM basepizza WHERE id=?");
+                PreparedStatement pstmtDeleteBasePizza = con.prepareStatement("DELETE FROM basespizzas WHERE idbasepizza=?");
                 pstmtDeleteBasePizza.setInt(1, id);
                 pstmtDeleteBasePizza.executeUpdate();
 
@@ -155,7 +155,7 @@ public class PizzaDAO {
             if (pizza != null) {
                 this.con = ds.getConnection();
 
-                PreparedStatement pstmtDeleteIngrediStatement = con.prepareStatement("DELETE FROM pizza WHERE idbasepizza=? AND idingredient=?");
+                PreparedStatement pstmtDeleteIngrediStatement = con.prepareStatement("DELETE FROM pizzas WHERE idbasepizza=? AND idingredient=?");
                 pstmtDeleteIngrediStatement.setInt(1, pizza.getId());
                 pstmtDeleteIngrediStatement.setInt(2, idIngredient);
                 pstmtDeleteIngrediStatement.executeUpdate();
@@ -188,7 +188,7 @@ public class PizzaDAO {
                 this.con = ds.getConnection();
 
                 // ajout basepizza
-                PreparedStatement pstmtInsertPizza = con.prepareStatement("INSERT INTO basepizza VALUES(?,?,?,?)");
+                PreparedStatement pstmtInsertPizza = con.prepareStatement("INSERT INTO basespizzas VALUES(?,?,?,?)");
                 pstmtInsertPizza.setInt(1, pizza.getId());
                 pstmtInsertPizza.setString(2, pizza.getName());
                 pstmtInsertPizza.setString(3, pizza.getTypePate().getLabel());
@@ -199,7 +199,7 @@ public class PizzaDAO {
 
                 // ajout ingrédients
                 if (pizza.getIdsIngredientsList() != null) {
-                    PreparedStatement pstmtInsertIngredients = con.prepareStatement("INSERT INTO pizza VALUES(?,?)");
+                    PreparedStatement pstmtInsertIngredients = con.prepareStatement("INSERT INTO pizzas VALUES(?,?)");
                     List<Integer> idsIngredientsList =  pizza.getIdsIngredientsList();
                     pstmtInsertIngredients.setInt(1, pizza.getId());
                     for (Integer pizzaId : idsIngredientsList) {
@@ -237,7 +237,7 @@ public class PizzaDAO {
                 this.con = ds.getConnection();
 
                 if (!pizza.getIngredientsList().contains(ingredient)) {
-                    PreparedStatement pstmtInsertIngredients = con.prepareStatement("INSERT INTO pizza VALUES(?, ?)");
+                    PreparedStatement pstmtInsertIngredients = con.prepareStatement("INSERT INTO pizzas VALUES(?, ?)");
                     pstmtInsertIngredients.setInt(1, pizza.getId());
                     pstmtInsertIngredients.setInt(2, ingredient.getId());
                     pstmtInsertIngredients.executeUpdate();
@@ -269,8 +269,8 @@ public class PizzaDAO {
 
             finalPrice += pizza.getPrixBase();
             Statement stmtPriceIngredients = con.createStatement();
-            for (Integer idingredients : pizza.getIdsIngredientsList()) {
-                ResultSet rsPriceIngredients = stmtPriceIngredients.executeQuery("SELECT price FROM ingredients WHERE id=" + idingredients);
+            for (Integer idingredient : pizza.getIdsIngredientsList()) {
+                ResultSet rsPriceIngredients = stmtPriceIngredients.executeQuery("SELECT price FROM ingredients WHERE idingredient=" + idingredient);
                 if (rsPriceIngredients.next()) {
                     finalPrice += rsPriceIngredients.getFloat("price");
                 }
@@ -299,10 +299,10 @@ public class PizzaDAO {
             Pizza oldPizza = this.findById(idPizza);
             this.con = ds.getConnection();
 
-            PreparedStatement pstmtUpdateBasePizza = con.prepareStatement("UPDATE basepizza SET name=?, typepate=?, prixbase=? WHERE id=?");
+            PreparedStatement pstmtUpdateBasePizza = con.prepareStatement("UPDATE basespizzas SET name=?, typepate=?, prixbase=? WHERE idbasepizza=?");
             pstmtUpdateBasePizza.setInt(4, idPizza); 
 
-            PreparedStatement pstmtUpdateIngredients = con.prepareStatement("UPDATE pizza SET idingredient=? WHERE idbasepizza=?");
+            PreparedStatement pstmtUpdateIngredients = con.prepareStatement("UPDATE pizzas SET idingredient=? WHERE idbasepizza=?");
             pstmtUpdateIngredients.setInt(2, idPizza); 
 
             if (oldPizza != null && newPizza != null) {

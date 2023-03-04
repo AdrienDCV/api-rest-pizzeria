@@ -25,7 +25,7 @@ public class UsersDAO {
         try {
             con = ds.getConnection();
             Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT * FROM users");
+            ResultSet rs = stmt.executeQuery("SELECT * FROM clients");
 
             while(rs.next()){
                usersList.add(this.findByLogs(rs.getString("login"), rs.getString("password")));

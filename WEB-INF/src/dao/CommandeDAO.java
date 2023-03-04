@@ -11,18 +11,12 @@ import dto.Pizza;
 public class CommandeDAO {
     
     // attributes
+    private DS ds;
     private Connection con;
 
     // constructor(s)
     public CommandeDAO() {
-        try {
-            Class.forName("org.postgresql.Driver");
-            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
-
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
+        this.ds = new DS();
     }
 
     // methods
@@ -31,8 +25,7 @@ public class CommandeDAO {
         List<Commande> commandesList = new ArrayList<>();
 
         try {
-            Class.forName("org.postgresql.Driver");
-            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+            this.con = ds.getConnection();
 
             PizzaDAO pizzaDAO = new PizzaDAO();
             Statement stmt = con.createStatement();
@@ -44,7 +37,7 @@ public class CommandeDAO {
 
             // réucpérer la liste de pizzas
             for (Commande  commande : commandesList) {
-                ResultSet rsPizzas = stmt.executeQuery("SELECT idpizza FROM commandepizza WHERE idcommande=" + commande.getIdCommande());
+                ResultSet rsPizzas = stmt.executeQuery("SELECT idpizza FROM commandespizzas WHERE idcommande=" + commande.getIdCommande());
                 List<Pizza> pizzasList = commande.getPizzasList();
                 while (rsPizzas.next()) {
                     pizzasList.add(pizzaDAO.findById(rsPizzas.getInt("idpizza")));          
@@ -71,8 +64,7 @@ public class CommandeDAO {
         Commande commande = null;
         
         try {
-            Class.forName("org.postgresql.Driver");
-            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+            this.con = ds.getConnection();
 
             PizzaDAO pizzaDAO = new PizzaDAO();
             Statement stmtSelectCommande = con.createStatement();
@@ -81,7 +73,7 @@ public class CommandeDAO {
             if (rsCommande.next()){
                 commande = new Commande(rsCommande.getInt("idcommande"), rsCommande.getInt("idclient"), rsCommande.getDate("datecommande"), new ArrayList<>());
             
-                PreparedStatement pstmtSelectPizza = con.prepareStatement("SELECT idpizza FROM commandepizza WHERE idcommande=?");
+                PreparedStatement pstmtSelectPizza = con.prepareStatement("SELECT idpizza FROM commandespizzas WHERE idcommande=?");
                 pstmtSelectPizza.setInt(1, id);
                 ResultSet rsPizzas = pstmtSelectPizza.executeQuery();
                 List<Pizza> pizzasList = commande.getPizzasList();
@@ -112,8 +104,7 @@ public class CommandeDAO {
         
         try {
             if (this.findById(commande.getIdCommande()) == null) {
-                Class.forName("org.postgresql.Driver");
-                this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+                this.con = ds.getConnection();
                 PizzaDAO pizzaDAO = new PizzaDAO();
 
                 PreparedStatement pstmtInsertCommande = con.prepareStatement("INSERT INTO commandes VALUES(?,?,?)");
@@ -151,15 +142,14 @@ public class CommandeDAO {
         double finalPrice = 0;
 
         try {
-            Class.forName("org.postgresql.Driver");
-            this.con = DriverManager.getConnection("jdbc:postgresql://localhost:5432/devweb","adri","adriPostgresql");
+            this.con = ds.getConnection();
 
             Statement stmtPrice = con.createStatement(); 
             for (Pizza pizza : commande.getPizzasList()) {  
-                ResultSet rsPizzaPrice = stmtPrice.executeQuery("SELECT prixBase FROM basepizza WHERE id=" + pizza.getId());
+                ResultSet rsPizzaPrice = stmtPrice.executeQuery("SELECT prixBase FROM basespizzas WHERE id=" + pizza.getId());
                 if (rsPizzaPrice.next()) {
                     finalPrice += rsPizzaPrice.getFloat("prixBase");
-                    ResultSet rsPizzaIngredientsPrice = stmtPrice.executeQuery("SELECT SUM(price) AS price FROM pizza AS p JOIN ingredients AS i ON (p.idingredient = i.id) WHERE p.idbasepizza =" + pizza.getId());
+                    ResultSet rsPizzaIngredientsPrice = stmtPrice.executeQuery("SELECT SUM(price) AS price FROM pizzas AS p JOIN ingredients AS i ON (p.idingredient = i.id) WHERE p.idbasepizza =" + pizza.getId());
                     if (rsPizzaIngredientsPrice.next()) {
                         finalPrice += rsPizzaIngredientsPrice.getFloat("price");
                     } 
